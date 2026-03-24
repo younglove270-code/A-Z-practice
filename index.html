@@ -1,5 +1,4 @@
-utils/phonics.js
-// Complete phonics data for each letter
+src/utils/phonics.js
 export const PHONICS = {
   A: { name: "A", sound: "æ",  description: "apple",   phrase: "A says /æ/ as in Apple!" },
   B: { name: "B", sound: "b",  description: "ball",    phrase: "B says /b/ as in Ball!" },
@@ -29,19 +28,20 @@ export const PHONICS = {
   Z: { name: "Z", sound: "z",  description: "zebra",   phrase: "Z says /z/ as in Zebra!" },
 };
 
+const PHONICS_SPOKEN = {
+  A: "ah", B: "buh", C: "kuh", D: "duh", E: "eh", F: "fuh", G: "guh",
+  H: "huh", I: "ih", J: "juh", K: "kuh", L: "luh", M: "muh", N: "nuh",
+  O: "aw", P: "puh", Q: "kwuh", R: "ruh", S: "sss", T: "tuh", U: "uh",
+  V: "vuh", W: "wuh", X: "ksss", Y: "yuh", Z: "zzz",
+};
+
 export function speakLetter(letter) {
   window.speechSynthesis.cancel();
-  const phonics = PHONICS[letter];
-  if (!phonics) return;
-
-  const u0 = new SpeechSynthesisUtterance(`The letter ${letter}`);
-  u0.lang = "en-US"; u0.rate = 0.85; u0.pitch = 1.1;
-  u0.onend = () => {
-    const u1 = new SpeechSynthesisUtterance(phonics.phrase);
-    u1.lang = "en-US"; u1.rate = 0.8; u1.pitch = 1.05;
-    window.speechSynthesis.speak(u1);
-  };
-  window.speechSynthesis.speak(u0);
+  const spoken = PHONICS_SPOKEN[letter];
+  if (!spoken) return;
+  const u = new SpeechSynthesisUtterance(spoken);
+  u.lang = "en-US"; u.rate = 0.7; u.pitch = 1.1;
+  window.speechSynthesis.speak(u);
 }
 
 export function speakResult(grade, letter) {
@@ -52,12 +52,11 @@ export function speakResult(grade, letter) {
   else if (grade === "B")     praise = `Good job! Keep practicing the letter ${letter}. ${phonics.phrase}`;
   else if (grade === "C")     praise = `Nice try! Let's practice ${letter} again. ${phonics.phrase}`;
   else                        praise = `Don't give up! Try writing the letter ${letter} one more time!`;
-
   const u = new SpeechSynthesisUtterance(praise);
   u.lang = "en-US"; u.rate = 0.82; u.pitch = 1.1;
   window.speechSynthesis.speak(u);
 }
-utils/gradeCanvas.js
+📁 src/utils/gradeCanvas.js
 const CANVAS_W = 500;
 const CANVAS_H = 380;
 
@@ -131,7 +130,7 @@ export function gradeDrawing(studentCanvas, letter) {
 
   return { score, grade, color, advance };
 }
-components/classroom/CapybaraSVG.jsx
+📁 src/components/classroom/CapybaraSVG.jsx
 export default function CapybaraSVG({ className = "" }) {
   return (
     <img
@@ -142,7 +141,67 @@ export default function CapybaraSVG({ className = "" }) {
     />
   );
 }
-components/classroom/LetterCanvas.jsx
+📁 src/components/classroom/LetterProgress.jsx
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+export default function LetterProgress({ currentLetter }) {
+  const currentIdx = ALPHABET.indexOf(currentLetter);
+  return (
+    <div className="flex flex-wrap justify-center gap-1 px-2 max-w-lg mx-auto">
+      {ALPHABET.map((letter, i) => (
+        <div key={letter}
+          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold font-nunito transition-all duration-300 ${
+            i < currentIdx   ? "bg-accent/80 text-white shadow-sm" :
+            i === currentIdx ? "bg-primary text-primary-foreground shadow-md scale-110" :
+                               "bg-muted/60 text-muted-foreground"
+          }`}>
+          {letter}
+        </div>
+      ))}
+    </div>
+  );
+}
+📁 src/components/classroom/LetterSelector.jsx
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Eraser, Send, Volume2 } from "lucide-react";
+
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+export default function LetterSelector({ selectedLetter, onLetterChange, onReset, onScore, onSpeak }) {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-3">
+      <Select value={selectedLetter} onValueChange={onLetterChange}>
+        <SelectTrigger className="w-48 rounded-full bg-white/80 border-2 border-accent/40 font-nunito font-bold text-base shadow-sm">
+          <SelectValue placeholder="選擇字母" />
+        </SelectTrigger>
+        <SelectContent className="font-nunito max-h-60">
+          {ALPHABET.map((letter) => (
+            <SelectItem key={letter} value={letter} className="font-bold text-base">
+              練習字母 {letter}{letter.toLowerCase()}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Button variant="outline" onClick={onSpeak}
+        className="rounded-full bg-secondary/80 border-2 border-secondary font-nunito font-bold gap-2 px-5 shadow-sm hover:bg-secondary">
+        <Volume2 className="w-4 h-4" />聽發音
+      </Button>
+
+      <Button variant="outline" onClick={onReset}
+        className="rounded-full bg-muted/80 border-2 border-border font-nunito font-bold gap-2 px-5 shadow-sm hover:bg-muted">
+        <Eraser className="w-4 h-4" />擦乾淨
+      </Button>
+
+      <Button onClick={onScore}
+        className="rounded-full bg-accent text-accent-foreground font-nunito font-extrabold gap-2 px-6 shadow-md hover:bg-accent/90 border-none">
+        <Send className="w-4 h-4" />交卷！
+      </Button>
+    </div>
+  );
+}
+📁 src/components/classroom/LetterCanvas.jsx
 import { useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import CapybaraSVG from "./CapybaraSVG";
 
@@ -242,22 +301,23 @@ const LetterCanvas = forwardRef(function LetterCanvas({ letter, resetKey }, ref)
 });
 
 export default LetterCanvas;
-components/classroom/CelebrationOverlay.jsx
+📁 src/components/classroom/CelebrationOverlay.jsx
 import { motion, AnimatePresence } from "framer-motion";
 import CapybaraSVG from "./CapybaraSVG";
 import { PHONICS } from "../../utils/phonics";
 
 const GRADE_CONFIG = {
-  "A+":          { label: "A+",       color: "#FF7043", shadow: "#FFE0B2", message: "寫得太漂亮了！水豚君為你歡呼！🍊", emoji: ["🍊","⭐","✨","🎉","🌸","🌟"] },
-  "B":           { label: "B",        color: "#43A047", shadow: "#C8E6C9", message: "寫得不錯喔！再練習一次會更好！🌿",  emoji: ["🌿","👏","✨","🌱","💚","⭐"] },
-  "C":           { label: "C",        color: "#FB8C00", shadow: "#FFE0B2", message: "繼續加油！水豚君相信你可以的！💪",  emoji: ["💪","🌿","🍊","😊","✏️","💫"] },
-  "再試一次！":   { label: "再試\n一次",color: "#E53935", shadow: "#FFCDD2", message: "沒關係！擦掉重寫，你一定可以的！✏️",emoji: ["✏️","💪","🌿","😊","🍀","💫"] },
-  "😶 沒有寫字喔！":{ label: "?",     color: "#9E9E9E", shadow: "#F5F5F5", message: "先動筆寫字吧！水豚君在等你！✏️",    emoji: ["✏️","📝","🖊️","💭","🌿","😊"] },
+  "A+":              { label: "A+",       color: "#FF7043", shadow: "#FFE0B2", message: "寫得太漂亮了！水豚君為你歡呼！🍊", emoji: ["🍊","⭐","✨","🎉","🌸","🌟"] },
+  "B":               { label: "B",        color: "#43A047", shadow: "#C8E6C9", message: "寫得不錯喔！再練習一次會更好！🌿",  emoji: ["🌿","👏","✨","🌱","💚","⭐"] },
+  "C":               { label: "C",        color: "#FB8C00", shadow: "#FFE0B2", message: "繼續加油！水豚君相信你可以的！💪",  emoji: ["💪","🌿","🍊","😊","✏️","💫"] },
+  "再試一次！":       { label: "再試\n一次",color: "#E53935", shadow: "#FFCDD2", message: "沒關係！擦掉重寫，你一定可以的！✏️",emoji: ["✏️","💪","🌿","😊","🍀","💫"] },
+  "😶 沒有寫字喔！": { label: "?",        color: "#9E9E9E", shadow: "#F5F5F5", message: "先動筆寫字吧！水豚君在等你！✏️",    emoji: ["✏️","📝","🖊️","💭","🌿","😊"] },
 };
 
 export default function CelebrationOverlay({ show, grade, score, letter, onDismiss }) {
   const config = GRADE_CONFIG[grade] || GRADE_CONFIG["再試一次！"];
   const phonics = PHONICS[letter] || {};
+
   return (
     <AnimatePresence>
       {show && (
@@ -316,66 +376,7 @@ export default function CelebrationOverlay({ show, grade, score, letter, onDismi
     </AnimatePresence>
   );
 }
-components/classroom/LetterSelector.jsx
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Eraser, Send, Volume2 } from "lucide-react";
-
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-export default function LetterSelector({ selectedLetter, onLetterChange, onReset, onScore, onSpeak }) {
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-3">
-      <Select value={selectedLetter} onValueChange={onLetterChange}>
-        <SelectTrigger className="w-48 rounded-full bg-white/80 border-2 border-accent/40 font-nunito font-bold text-base shadow-sm">
-          <SelectValue placeholder="選擇字母" />
-        </SelectTrigger>
-        <SelectContent className="font-nunito max-h-60">
-          {ALPHABET.map((letter) => (
-            <SelectItem key={letter} value={letter} className="font-bold text-base">
-              練習字母 {letter}{letter.toLowerCase()}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Button variant="outline" onClick={onSpeak}
-        className="rounded-full bg-secondary/80 border-2 border-secondary font-nunito font-bold gap-2 px-5 shadow-sm hover:bg-secondary">
-        <Volume2 className="w-4 h-4" />聽發音
-      </Button>
-
-      <Button variant="outline" onClick={onReset}
-        className="rounded-full bg-muted/80 border-2 border-border font-nunito font-bold gap-2 px-5 shadow-sm hover:bg-muted">
-        <Eraser className="w-4 h-4" />擦乾淨
-      </Button>
-
-      <Button onClick={onScore}
-        className="rounded-full bg-accent text-accent-foreground font-nunito font-extrabold gap-2 px-6 shadow-md hover:bg-accent/90 border-none">
-        <Send className="w-4 h-4" />交卷！
-      </Button>
-    </div>
-  );
-}
-components/classroom/LetterProgress.jsx
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-export default function LetterProgress({ currentLetter }) {
-  const currentIdx = ALPHABET.indexOf(currentLetter);
-  return (
-    <div className="flex flex-wrap justify-center gap-1 px-2 max-w-lg mx-auto">
-      {ALPHABET.map((letter, i) => (
-        <div key={letter}
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold font-nunito transition-all duration-300 ${
-            i < currentIdx  ? "bg-accent/80 text-white shadow-sm" :
-            i === currentIdx ? "bg-primary text-primary-foreground shadow-md scale-110" :
-            "bg-muted/60 text-muted-foreground"}`}>
-          {letter}
-        </div>
-      ))}
-    </div>
-  );
-}
-pages/Classroom.jsx
+📁 src/pages/Classroom.jsx
 import { useState, useCallback, useRef } from "react";
 import LetterSelector from "../components/classroom/LetterSelector";
 import LetterCanvas from "../components/classroom/LetterCanvas";
@@ -414,7 +415,7 @@ export default function Classroom() {
         if (idx < 25) setLetter(ALPHABET[idx + 1]);
         setResetKey((k) => k + 1);
         setCelebration(null);
-      }, 3000);
+      }, 1000);
     }
   }, [letter]);
 
