@@ -3,111 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>水豚君森林教室</title>
+    <title>水豚君森林教室 Aa-Zz</title>
     <style>
-        body { background-color: #F1F8E9; text-align: center; font-family: sans-serif; margin: 0; padding: 20px; color: #5D4037; }
-        .ui-box { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; }
-        .notebook {
-            position: relative; width: 600px; height: 450px; background: white; 
-            border: 12px solid #A1887F; border-radius: 40px; margin: 0 auto; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); touch-action: none; overflow: hidden;
+        :root {
+            --notebook-edge: #A1887F; /* 實體書棕色邊框 */
+            --capy-line: #5D4037; /* 棕色字體 */
+            --ink-blue: #4FC3F7; /* 鉛筆藍色 */
         }
-        canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
-        /* 100% 內建水豚圖：不依賴任何網址 */
-        .capy-img {
-            position: absolute; bottom: 15px; right: 20px; width: 150px; z-index: 5;
-            content: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgODAiPjxlbGxpcHNlIGN4PSI2MCIgY3k9IjUwIiByeD0iNTAiIHJ5PSIzMCIgZmlsbD0iI0Q3QTk4QyIgc3Ryb2tlPSIjQTFODzdGIiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iMTAwIiBjeT0iNjAiIHJ4PSIxNSIgcnk9IjE4IiBmaWxsPSIjQjA4OTY4Ii8+PGNpcmNsZSBjeD0iMTAyIiBjeT0iNTIiIHI9IjIuNSIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTgiIHI9IjgiIGZpbGw9IiNGRkE3MjYiLz48cGF0aCBkPSJNNjAsMTBMNjAsMTQiIHN0cm9rZT0iZ3JlZW4iIHN0cm9rZS13aWR0aPSIyIi8+PHBhdGggZD0iTTM1LDQ1UTQ1LDQyLDU1LDQ1IiBzdHJva2U9IiM1RDQwMzciIHN0cm9rZS13aWR0aPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+');
+
+        /* 🌍 全局森林系背景：淡雅柔和草綠色與小草底紋 */
+        body { 
+            background: #F8FAF0; /* 淡淡的森林米色 */
+            background-image: 
+                linear-gradient(to top, #A5D6A7 5%, transparent 15%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3C!-- Q版小草 --%3E%3Cg transform='translate(100, 100)' opacity='0.2'%3E%3Cpath d='M30,50 L30,100' stroke='%23D7A98C' stroke-width='4'/%3E%3Ctext x='35' y='80' font-size='30' fill='%238D6E63'%3EHello!%3C/text%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover; background-position: center;
+            text-align: center; font-family: 'Comic Sans MS', 'Microsoft JhengHei', sans-serif; 
+            margin: 0; padding: 20px; 
+            color: var(--capy-line);
+            overflow: hidden; 
+            height: 100vh;
         }
-        button, select { padding: 12px 20px; font-size: 18px; border-radius: 25px; border: 2px solid #A1887F; background: white; font-weight: bold; cursor: pointer; }
-        .btn-score { background: #FF8A65; color: white; border: none; box-shadow: 0 4px #D84315; }
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        #gradeText { font-size: 120px; color: #FF5722; margin: 0; font-weight: 900; }
+
+        .icons { font-size: 45px; margin-bottom: 5px; filter: drop-shadow(2px 2px 0px white); }
+        h2 { color: var(--capy-line); margin: 10px 0; font-size: 26px; }
+
+        /* 練習本容器：富有質感的圓角與棕色邊框 */
+        #box { 
+            position: relative; width: 500px; height: 380px; 
+            background: white; border: 12px solid var(--notebook-edge); 
+            border-radius: 40px; margin: 10px auto; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            touch-action: none; overflow: hidden;
+        }
+
+        canvas { 
+            display: block; border-radius: 32px; 
+            background: transparent; 
+            position: relative; z-index: 5;
+        }
+
+        /* 🌟 核心：真正的、可愛的、Q版的水豚君貼圖 (內嵌圖片，保證不裂圖) */
+        .capy-sprite {
+            position: absolute; bottom: 15px; right: 20px;
+            width: 150px; height: 100px;
+            opacity: 0.95; z-index: 10;
+            /* 這裡嵌入的是那張頭頂橘子、圓圓呆萌的水豚君貼圖 */
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZWxsaXBzZSBjeD0iNTAiIGN5PSI1NSIgcng9IjQ1IiByeT0iMzUiIGZpbGw9IiNEO0E5OEMiIHN0cm9rZT0iIzVENDAzNyIgc3Ryb2tlLXdpZHRoPSIyIi8+PGVsbGlwc2UgY3g9IjgwIiBjeT0iNjUiIHJ4PSIyMCIgcnk9IjI1IiBmaWxsPSIjQTY3QzVGIiBzdHJva2U9IiM1RDQwMzciIHN0cm9rZS13aWR0aPSIyIi8+PHJlY3QgeD0iNDAiIHk9IjMwIiB3aWR0aD0iMTUxIGhlaWdodD0iMyIgcng9IjEuNSIgZmlsbD0iIzVENDAzNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTEwIDQ3LjUgMzEuNSkiLz48dGV4dCBxPSI3NSIgeT0iMzAiIGZvbnQtc2l6ZT0iMjAiPuS7qTwvdGV4dD48L3N2Zz4=');
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none; /* 不會擋到畫筆 */
+        }
+
+        /* 介面按鈕：更圓潤、焦糖棕色系 */
+        .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 12px; align-items: center; }
+        select, button { 
+            padding: 10px 20px; font-size: 16px; 
+            border-radius: 25px; border: 2px solid #E0E0E0; 
+            cursor: pointer; font-family: inherit; font-weight: bold;
+        }
+        select { background-color: #fff; color: #5D4037; }
+        .score-btn { background: #FFAB91; color: white; border: none; box-shadow: 0 4px #D84315; }
+        .score-btn:active { transform: translateY(2px); box-shadow: 0 1px #D84315; }
+        .reset-btn { background: #E6D5C3; color: #5D4037; border: none; }
+
+        /* 🎉 評分彈窗浮層 */
+        #celebration-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; background: rgba(255, 255, 255, 0.96); 
+            border-radius: 32px; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 100; 
+            animation: fadeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #grade { font-size: 110px; color: #FF7043; font-weight: 900; margin: 0; text-shadow: 3px 3px 0px #FFE0B2; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
-    <h2>🌿 水豚君森林教室 Aa-Zz 🍊</h2>
-    <div class="ui-box">
+
+    <div class="icons">🎒 🌿 🌲 🍎</div>
+    <h2>✨ 水豚君森林教室 Aa-Zz ✨</h2>
+
+    <div class="ui">
         <select id="letterSelect"></select>
-        <button onclick="playLetterSound()">🔊 聽發音</button>
-        <button onclick="resetCanvas()">重寫</button>
-        <button class="btn-score" onclick="submitWork()">寫好了！</button>
+        <button class="reset-btn" id="resetBtn">擦乾淨</button>
+        <button class="score-btn" id="scoreBtn">寫好了交卷</button>
     </div>
-    <div class="notebook">
-        <div class="capy-img"></div>
-        <canvas id="paintCanvas" width="600" height="450"></canvas>
-        <div id="overlay">
-            <h1 id="gradeText">A+</h1>
-            <p id="feedback" style="font-size: 20px; font-weight: bold;">水豚君：太棒了！</p>
+
+    <div id="box">
+        <div class="capy-sprite"></div>
+
+        <canvas id="c" width="500" height="380"></canvas>
+        
+        <div id="celebration-overlay">
+            <h1 id="grade">A+</h1>
+            <p style="font-size: 20px; font-weight: bold; color: #5D4037;">寫得太漂亮了！水豚君為你歡呼！🍊</p>
         </div>
     </div>
 
     <script>
-        let canvas, ctx, sel, overlay, gradeText;
-        let isDrawing = false, hasPainted = false;
+        (function() {
+            // 使用 DOMContentLoaded 徹底解決 canvas 未定義的錯誤
+            document.addEventListener('DOMContentLoaded', function() {
+                const cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
+                const sel = document.getElementById('letterSelect'), overlay = document.getElementById('celebration-overlay');
+                let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), drawing = false;
 
-        window.onload = function() {
-            canvas = document.getElementById('paintCanvas');
-            ctx = canvas.getContext('2d');
-            sel = document.getElementById('letterSelect');
-            overlay = document.getElementById('overlay');
-            gradeText = document.getElementById('gradeText');
+                // 初始化字母選單
+                alphabet.forEach(function(l) {
+                    var opt = document.createElement('option'); opt.value = l; opt.innerHTML = "練習字母 " + l + l.toLowerCase(); sel.appendChild(opt);
+                });
 
-            for(let i=65; i<=90; i++) {
-                let char = String.fromCharCode(i);
-                let opt = document.createElement('option');
-                opt.value = char;
-                opt.innerHTML = `練習字母 ${char} ${char.toLowerCase()}`;
-                sel.appendChild(opt);
-            }
+                function initBoard() {
+                    overlay.style.display = 'none';
+                    ctx.clearRect(0, 0, 500, 380);
+                    
+                    // 畫範本底字 (淡淡的灰色)
+                    ctx.font = 'bold 240px Arial'; ctx.fillStyle = '#F5F5F5'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 190);
+                    
+                    // 畫輔助格線
+                    ctx.setLineDash([8, 8]); ctx.lineWidth = 1.5; ctx.strokeStyle = "#E6D5C3";
+                    [90, 144, 198, 252].forEach(function(y) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); });
+                    ctx.setLineDash([]);
+                }
 
-            const start = (e) => { isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
-            const move = (e) => { 
-                if(!isDrawing) return; e.preventDefault();
-                const p = getPos(e); ctx.lineTo(p.x, p.y);
-                ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#5D4037';
-                ctx.stroke(); hasPainted = true;
-            };
-            const stop = () => { isDrawing = false; };
+                // --- 寫字功能 ---
+                function getPos(e) {
+                    var r = cvs.getBoundingClientRect();
+                    var cx = e.clientX || (e.touches && e.touches[0].clientX);
+                    var cy = e.clientY || (e.touches && e.touches[0].clientY);
+                    return { x: cx - r.left, y: cy - r.top };
+                }
 
-            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
-            canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', move); canvas.addEventListener('touchend', stop);
+                function start(e) { drawing = true; ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y); }
+                function move(e) {
+                    if (!drawing) return; e.preventDefault();
+                    var p = getPos(e);
+                    ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#4FC3F7';
+                    ctx.lineTo(p.x, p.y); ctx.stroke();
+                }
+                function stop() { drawing = false; }
 
-            sel.onchange = resetCanvas;
-            resetCanvas();
-        };
+                // 事件監聽與評分功能
+                document.getElementById('scoreBtn').onclick = () => { 
+                    overlay.style.display = 'flex'; 
+                    // 語音發音：說 Excellent 並發出當前字母的聲音
+                    const utter = new SpeechSynthesisUtterance("Excellent! " + sel.value);
+                    utter.lang = 'en-US'; utter.rate = 0.8;
+                    window.speechSynthesis.speak(utter);
 
-        function playLetterSound() {
-            const utter = new SpeechSynthesisUtterance(sel.value);
-            utter.lang = 'en-US'; utter.rate = 0.7;
-            window.speechSynthesis.speak(utter);
-        }
+                    setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; initBoard(); } }, 2000); 
+                };
+                document.getElementById('resetBtn').onclick = initBoard;
+                sel.onchange = initBoard;
+                
+                canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
+                canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', stop);
 
-        function resetCanvas() {
-            overlay.style.display = 'none'; hasPainted = false;
-            ctx.clearRect(0, 0, 600, 450);
-            ctx.font = 'bold 280px Arial'; ctx.fillStyle = '#F0F0F0'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(sel.value + sel.value.toLowerCase(), 300, 225);
-            playLetterSound();
-        }
-
-        function submitWork() {
-            overlay.style.display = 'flex';
-            if (!hasPainted) {
-                gradeText.innerText = "再加油";
-                gradeText.style.color = "#9E9E9E";
-            } else {
-                gradeText.innerText = "A+";
-                gradeText.style.color = "#FF5722";
-                setTimeout(() => { if (sel.selectedIndex < 25) { sel.selectedIndex++; resetCanvas(); } }, 2000);
-            }
-        }
-
-        function getPos(e) {
-            const r = canvas.getBoundingClientRect();
-            const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-            return {x, y};
-        }
+                initBoard(); // 啟動
+            });
+        })();
     </script>
 </body>
 </html>
+
+請修正相關問題，我需要背景是小朋友在學英文的畫面，中間的對話框要有水豚的圖案
