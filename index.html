@@ -5,74 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水豚君森林教室</title>
     <style>
-        /* 1. 回歸你最愛的森林配色與插畫背景 */
-        body { 
+        body {
             background-color: #f0f7ef;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 100 100'%3E%3Cg opacity='0.1'%3E%3Ctext x='10' y='30' font-size='12' fill='%232E7D32'%3EABC%3C/text%3E%3Ccircle cx='70' cy='70' r='5' fill='%2381C784'/%3E%3Cpath d='M20 80 Q25 70 30 80' stroke='%232E7D32' fill='none'/%3E%3C/g%3E%3C/svg%3E");
             margin: 0; padding: 20px; font-family: 'Arial', sans-serif; text-align: center;
         }
-
         .header-icons { font-size: 45px; margin-bottom: 10px; }
-        
-        /* 咖啡色質感邊框容器 */
+
         .container {
-            width: 500px; height: 380px; background: white; 
+            width: 500px; height: 380px; background: white;
             border: 12px solid #8d6e63; border-radius: 40px;
             margin: 10px auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             touch-action: none; overflow: hidden;
         }
-
         canvas { display: block; background: transparent; position: relative; z-index: 5; }
 
-        /* 2. 重新設計的 Q 版可愛水豚 */
+        /* === 全新可愛版水豚君 === */
         .capy-sprite {
-            position: absolute; bottom: 15px; right: 20px;
-            width: 120px; height: 90px; z-index: 2;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Cellipse cx='50' cy='40' rx='40' ry='28' fill='%23C09278'/%3E%3Ccircle cx='80' cy='45' rx='12' ry='15' fill='%23A67C65'/%3E%3Cpath d='M75 42 L82 42' stroke='%23333' stroke-width='2'/%3E%3Ccircle cx='50' cy='12' r='7' fill='%23FF9800'/%3E%3Cpath d='M50 5 L50 8' stroke='green' stroke-width='1.5'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-size: contain;
+            position: absolute; 
+            bottom: 12px; 
+            right: 25px;
+            width: 135px; 
+            height: 105px; 
+            z-index: 2;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 110' width='140' height='110'%3E%3C!-- 身體 --%3E%3Cellipse cx='75' cy='72' rx='48' ry='35' fill='%23C89E7F'/%3E%3C!-- 頭部 --%3E%3Cellipse cx='55' cy='45' rx='35' ry='32' fill='%23C89E7F'/%3E%3C!-- 耳朵 --%3E%3Cellipse cx='28' cy='32' rx='12' ry='15' fill='%23B38A6E'/%3E%3Cellipse cx='82' cy='29' rx='13' ry='16' fill='%23B38A6E'/%3E%3C!-- 眼睛 --%3E%3Cellipse cx='42' cy='42' rx='6' ry='9' fill='%23222'/%3E%3Cellipse cx='68' cy='41' rx='6' ry='9' fill='%23222'/%3E%3Ccircle cx='44' cy='39' r='2.5' fill='%23fff'/%3E%3Ccircle cx='70' cy='38' r='2.5' fill='%23fff'/%3E%3C!-- 嘴巴 --%3E%3Cpath d='M48 58 Q55 63 63 58' fill='none' stroke='%23333' stroke-width='2.5' stroke-linecap='round'/%3E%3C!-- 小鼻子 --%3E%3Cellipse cx='55' cy='53' rx='4' ry='3' fill='%23333'/%3E%3C!-- 頭上的小橘子 --%3E%3Ccircle cx='75' cy='18' r='11' fill='%23FF9F1C'/%3E%3Ccircle cx='72' cy='14' r='4' fill='%23FFBB4D'/%3E%3C!-- 手臂 --%3E%3Cellipse cx='105' cy='68' rx='12' ry='18' fill='%23C89E7F' transform='rotate(-35 105 68)'/%3E%3C!-- 小尾巴 --%3Cpath d='M115 75 Q125 80 130 70' fill='none' stroke='%23B38A6E' stroke-width='14' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
         }
 
-        /* 介面按鈕 */
         .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; }
-        select, button { 
-            padding: 10px 22px; border-radius: 20px; border: 3px solid #8d6e63; 
+        select, button {
+            padding: 10px 22px; border-radius: 20px; border: 3px solid #8d6e63;
             font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
         .btn-score { background: #ff8a65; color: white; border: none; }
         .btn-reset { background: #e0e0e0; color: #555; border: none; }
 
-        /* 3. 水豚歡呼與評分動畫 */
         #win {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 100;
+            background: rgba(255,255,255,0.92); z-index: 100;
             display: none; flex-direction: column; justify-content: center; align-items: center;
         }
         .score-text { font-size: 100px; color: #ff5722; font-weight: 900; margin: 0; }
-        
-        /* 水豚歡呼動畫：獲得 A+ 時彈跳 */
-        .cheer-capy {
-            width: 100px; height: 80px; 
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Cellipse cx='50' cy='40' rx='40' ry='28' fill='%23C09278'/%3E%3Cellipse cx='80' cy='45' rx='12' ry='15' fill='%23A67C65'/%3E%3Cpath d='M75 42 L82 42' stroke='%23333' stroke-width='2'/%3E%3Ccircle cx='50' cy='12' r='7' fill='%23FF9800'/%3E%3C/svg%3E");
-            background-size: contain; background-repeat: no-repeat;
-            animation: cheerJump 0.4s infinite alternate;
-        }
 
+        .cheer-capy {
+            width: 110px; height: 90px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 110' width='140' height='110'%3E%3Cellipse cx='75' cy='72' rx='48' ry='35' fill='%23C89E7F'/%3E%3Cellipse cx='55' cy='45' rx='35' ry='32' fill='%23C89E7F'/%3E%3Cellipse cx='28' cy='32' rx='12' ry='15' fill='%23B38A6E'/%3E%3Cellipse cx='82' cy='29' rx='13' ry='16' fill='%23B38A6E'/%3E%3Cellipse cx='42' cy='42' rx='6' ry='9' fill='%23222'/%3E%3Cellipse cx='68' cy='41' rx='6' ry='9' fill='%23222'/%3E%3Ccircle cx='44' cy='39' r='2.5' fill='%23fff'/%3E%3Ccircle cx='70' cy='38' r='2.5' fill='%23fff'/%3E%3Cpath d='M48 58 Q55 63 63 58' fill='none' stroke='%23333' stroke-width='2.5' stroke-linecap='round'/%3E%3Cellipse cx='55' cy='53' rx='4' ry='3' fill='%23333'/%3E%3Ccircle cx='75' cy='18' r='11' fill='%23FF9F1C'/%3E%3Ccircle cx='72' cy='14' r='4' fill='%23FFBB4D'/%3E%3C/svg%3E");
+            background-size: contain; background-repeat: no-repeat;
+            animation: cheerJump 0.45s infinite alternate;
+        }
         @keyframes cheerJump {
-            from { transform: translateY(0); } to { transform: translateY(-30px); }
+            from { transform: translateY(0); } 
+            to { transform: translateY(-25px); }
         }
     </style>
 </head>
 <body>
-
     <div class="header-icons">👶 📖 🌿 🍎</div>
-    <h2 style="color: #5d4037;">水豚君陪你學英文 Aa-Zz</h2>
-
+    <h2 style="color: #5d4037;">水豚君森林教室 Aa-Zz</h2>
     <div class="ui">
         <select id="sel"></select>
         <button class="btn-reset" onclick="reset()">重新擦乾淨</button>
         <button class="btn-score" onclick="showScore()">寫好交卷</button>
     </div>
-
     <div class="container">
         <div class="capy-sprite"></div>
         <canvas id="c" width="500" height="380"></canvas>
@@ -92,23 +87,28 @@
         for(let i=65; i<=90; i++) {
             let char = String.fromCharCode(i);
             let opt = document.createElement('option');
-            opt.value = char; opt.innerHTML = `練習字母 ${char}${char.toLowerCase()}`;
+            opt.value = char;
+            opt.innerHTML = `練習字母 ${char}${char.toLowerCase()}`;
             sel.appendChild(opt);
         }
 
         function reset() {
             win.style.display = 'none';
             ctx.clearRect(0, 0, 500, 380);
-            // 繪製輔助線
+            // 輔助線
             ctx.setLineDash([5, 5]); ctx.strokeStyle = '#f0f0f0';
-            [95, 190, 285].forEach(y => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); });
-            // 繪製字母範例 (淡灰色)
-            ctx.setLineDash([]); ctx.font = 'bold 240px Arial'; ctx.fillStyle = '#f8f8f8';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            [95, 190, 285].forEach(y => { 
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); 
+            });
+            // 淡灰色範例字母
+            ctx.setLineDash([]); 
+            ctx.font = 'bold 240px Arial'; 
+            ctx.fillStyle = '#f8f8f8';
+            ctx.textAlign = 'center'; 
+            ctx.textBaseline = 'middle';
             ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 190);
         }
 
-        // 跳轉邏輯：1.2秒 (符合1-1.5秒要求)
         function showScore() {
             win.style.display = 'flex';
             setTimeout(() => {
@@ -116,29 +116,42 @@
                     sel.selectedIndex++;
                     reset();
                 } else {
-                    win.innerHTML = "<div class='cheer-capy'></div><h1>全部練完囉！</h1>";
+                    win.innerHTML = `<div class='cheer-capy'></div><h1 style="color:#5d4037;">全部練完囉！</h1>`;
                 }
-            }, 1200); 
+            }, 1200);
         }
 
-        // 畫筆功能
         function getPos(e) {
             const r = cvs.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
             return {x, y};
         }
-        function start(e) { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
-        function move(e) {
-            if(!drawing) return; e.preventDefault();
-            const p = getPos(e); ctx.lineTo(p.x, p.y);
-            ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#5d4037'; ctx.stroke();
+
+        function start(e) { 
+            drawing = true; 
+            ctx.beginPath(); 
+            const p = getPos(e); 
+            ctx.moveTo(p.x, p.y); 
         }
-        
-        cvs.addEventListener('mousedown', start); cvs.addEventListener('mousemove', move);
+        function move(e) {
+            if(!drawing) return; 
+            e.preventDefault();
+            const p = getPos(e); 
+            ctx.lineTo(p.x, p.y);
+            ctx.lineWidth = 15; 
+            ctx.lineCap = 'round'; 
+            ctx.strokeStyle = '#5d4037'; 
+            ctx.stroke();
+        }
+
+        cvs.addEventListener('mousedown', start);
+        cvs.addEventListener('mousemove', move);
         window.addEventListener('mouseup', () => drawing = false);
-        cvs.addEventListener('touchstart', start); cvs.addEventListener('touchmove', move);
+        cvs.addEventListener('touchstart', start);
+        cvs.addEventListener('touchmove', move);
         cvs.addEventListener('touchend', () => drawing = false);
+
         sel.onchange = reset;
         reset();
     </script>
