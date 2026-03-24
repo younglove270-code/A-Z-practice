@@ -6,9 +6,8 @@
     <title>水豚君英文練習板</title>
     <style>
         :root { --capy-body: #D7A98C; --capy-nose: #A67C5F; --capy-line: #5D4037; --bg-color: #FEF8F0; }
-        body { background: var(--bg-color); text-align: center; font-family: sans-serif; margin: 0; padding: 15px; color: var(--capy-line); }
+        body { background: var(--bg-color); text-align: center; font-family: 'Microsoft JhengHei', sans-serif; margin: 0; padding: 15px; color: var(--capy-line); }
         
-        /* 練習區容器 */
         #box { 
             width: 480px; height: 360px; 
             background: white; 
@@ -16,49 +15,44 @@
             border-radius: 35px; 
             margin: 10px auto; 
             position: relative; 
-            box-shadow: 0 8px 25px rgba(166, 124, 95, 0.2);
+            box-shadow: 0 10px 30px rgba(166, 124, 95, 0.3);
             overflow: hidden;
         }
 
-        /* 雙畫布設計：bg 畫底字，fg 畫寫字 */
         canvas { position: absolute; top: 0; left: 0; border-radius: 27px; touch-action: none; }
-        #bgCanvas { z-index: 1; }
-        #fgCanvas { z-index: 5; }
+        #bgCanvas { z-index: 1; } /* 底層：格子與字母 */
+        #fgCanvas { z-index: 10; cursor: crosshair; } /* 頂層：寫字區 */
 
-        /* 浮水印直接寫在背景 */
-        #box::after {
+        /* 讓水豚君更明顯一點的背景 */
+        #box::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cellipse cx='100' cy='65' rx='70' ry='45' fill='%23D7A98C' opacity='0.1'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: center;
-            z-index: 0; pointer-events: none;
+            top: 50%; left: 50%; width: 220px; height: 140px;
+            transform: translate(-50%, -50%);
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cellipse cx='100' cy='65' rx='75' ry='48' fill='%23D7A98C' opacity='0.15'/%3E%3Cellipse cx='45' cy='70' rx='25' ry='30' fill='%23A67C5F' opacity='0.15'/%3E%3C/svg%3E") no-repeat center;
+            z-index: 0;
         }
 
         .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 15px; }
-        button, select { padding: 12px 22px; font-size: 17px; border-radius: 25px; border: 2px solid #D7CCC8; cursor: pointer; font-weight: bold; }
-        .score-btn { background: var(--capy-nose); color: white; border: none; }
-        .reset-btn { background: #E6D5C3; color: var(--capy-line); border: none; }
-
-        /* 慶祝動畫 */
+        button, select { padding: 12px 25px; font-size: 18px; border-radius: 25px; border: 3px solid #E6D5C3; cursor: pointer; font-weight: bold; background: white; color: var(--capy-line); }
+        .score-btn { background: #FFAB91; color: white; border: none; }
+        
         #celebration { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            display: none; background: rgba(255, 255, 255, 0.9); 
+            display: none; background: rgba(255, 255, 255, 0.95); 
             z-index: 100; flex-direction: column; justify-content: center; align-items: center; 
         }
-        #grade { font-size: 100px; color: #FF7043; margin: 0; }
-        .jump { width: 120px; animation: capyJump 0.6s infinite alternate; }
-        @keyframes capyJump { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+        #grade { font-size: 120px; color: #FF5722; font-weight: 900; margin: 0; }
     </style>
 </head>
 <body>
 
-    <h2>🐾 水豚君陪你寫英文 🐾</h2>
+    <h2 style="font-size: 28px;">🐾 水豚君陪你練習 🐾</h2>
     
     <div class="ui">
-        <select id="sel" onchange="init()"></select>
-        <button class="reset-btn" onclick="init()">重寫</button>
-        <button class="score-btn" onclick="showScore()">看評分</button>
+        <select id="sel" onchange="initBoard()"></select>
+        <button onclick="initBoard()">重寫</button>
+        <button class="score-btn" onclick="showGrade()">看評分</button>
     </div>
 
     <div id="box">
@@ -67,7 +61,7 @@
         
         <div id="celebration">
             <div id="grade">A+</div>
-            <p style="font-size: 20px; font-weight: bold;">寫得太棒了！</p>
+            <p style="font-size: 24px; font-weight: bold;">水豚君為你歡呼！🎉</p>
         </div>
     </div>
 
@@ -75,63 +69,69 @@
         const bgCvs = document.getElementById('bgCanvas'), bgCtx = bgCvs.getContext('2d');
         const fgCvs = document.getElementById('fgCanvas'), fgCtx = fgCvs.getContext('2d');
         const sel = document.getElementById('sel'), overlay = document.getElementById('celebration');
-        let drawing = false;
+        let isDrawing = false;
 
-        // 生成 A-Z 選單
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(l => {
+        // 初始化 A-Z
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        letters.forEach(l => {
             let opt = document.createElement('option');
             opt.value = l; opt.innerText = `練習 ${l}${l.toLowerCase()}`;
             sel.appendChild(opt);
         });
 
-        // 初始化：畫格線與底字
-        function init() {
+        function initBoard() {
             overlay.style.display = 'none';
             fgCtx.clearRect(0, 0, 480, 360);
             bgCtx.clearRect(0, 0, 480, 360);
             
-            // 畫四線格 (淺灰色)
-            bgCtx.setLineDash([5, 5]); bgCtx.strokeStyle = "#EEE";
-            [90, 144, 198, 252].forEach(y => { bgCtx.beginPath(); bgCtx.moveTo(0,y); bgCtx.lineTo(480,y); bgCtx.stroke(); });
+            // 1. 畫輔助線 (稍微加深一點點點)
+            bgCtx.setLineDash([8, 5]); bgCtx.strokeStyle = "#DDD"; bgCtx.lineWidth = 2;
+            [90, 144, 198, 252].forEach(y => {
+                bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(480, y); bgCtx.stroke();
+            });
             
-            // 畫字母底字 (深灰色，保證看得見)
+            // 2. 畫字母底字 (顏色加深到 #D0D0D0，保證清晰)
             bgCtx.setLineDash([]);
-            bgCtx.font = 'bold 230px Arial';
-            bgCtx.fillStyle = '#EBEBEB'; 
+            bgCtx.font = 'bold 240px Arial';
+            bgCtx.fillStyle = '#D0D0D0'; 
             bgCtx.textAlign = 'center'; bgCtx.textBaseline = 'middle';
             bgCtx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
         }
 
-        // 寫字功能
-        function getPos(e) {
-            const r = fgCvs.getBoundingClientRect();
-            const cx = e.touches ? e.touches[0].clientX : e.clientX;
-            const cy = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: cx - r.left, y: cy - r.top };
+        // 寫字功能優化
+        function getXY(e) {
+            const rect = fgCvs.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        function start(e) { drawing = true; fgCtx.beginPath(); const p = getPos(e); fgCtx.moveTo(p.x, p.y); }
-        function move(e) {
-            if(!drawing) return; e.preventDefault();
-            const p = getPos(e);
-            fgCtx.lineWidth = 15; fgCtx.lineCap = 'round'; fgCtx.strokeStyle = '#4FC3F7';
+        function start(e) { isDrawing = true; fgCtx.beginPath(); const p = getXY(e); fgCtx.moveTo(p.x, p.y); }
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const p = getXY(e);
+            fgCtx.lineWidth = 12; fgCtx.lineCap = 'round'; fgCtx.lineJoin = 'round';
+            fgCtx.strokeStyle = '#2196F3'; // 漂亮的藍色墨水
             fgCtx.lineTo(p.x, p.y); fgCtx.stroke();
         }
 
-        function showScore() {
+        function showGrade() {
             overlay.style.display = 'flex';
-            setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; init(); } }, 2000);
+            setTimeout(() => {
+                if(sel.selectedIndex < 25) { sel.selectedIndex++; initBoard(); }
+            }, 2000);
         }
 
-        // 事件綁定
         fgCvs.addEventListener('mousedown', start);
-        fgCvs.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => drawing = false);
+        fgCvs.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', () => isDrawing = false);
         fgCvs.addEventListener('touchstart', start);
-        fgCvs.addEventListener('touchmove', move);
-        fgCvs.addEventListener('touchend', () => drawing = false);
+        fgCvs.addEventListener('touchmove', draw);
+        fgCvs.addEventListener('touchend', () => isDrawing = false);
 
-        init(); // 啟動
+        // 確保剛進來就顯示
+        window.onload = initBoard;
     </script>
 </body>
 </html>
