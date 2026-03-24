@@ -5,92 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水豚君英文練習 Aa-Zz</title>
     <style>
-        :root {
-            --capy-brown: #8D6E63;
-            --capy-light: #D7CCC8;
-            --bg-color: #FDF5E6;
-        }
-
-        body { 
-            background: var(--bg-color); 
-            text-align: center; 
-            font-family: sans-serif; 
-            margin: 0; padding: 15px; 
-            color: #5D4037;
-            overflow: hidden; /* 防止連寫時畫面晃動 */
-        }
-
+        :root { --capy-brown: #8D6E63; --capy-light: #D7CCC8; --bg-color: #FDF5E6; }
+        body { background: var(--bg-color); text-align: center; font-family: sans-serif; margin: 0; padding: 15px; color: #5D4037; overflow: hidden; }
+        h2 { color: var(--capy-brown); margin: 10px 0; }
+        
         #box { 
-            width: 480px; height: 360px; 
-            background: white; 
-            border: 8px solid var(--capy-light); 
-            border-radius: 30px; 
-            margin: 10px auto; 
-            position: relative; 
-            box-shadow: 0 6px 20px rgba(141, 110, 99, 0.2); 
-            touch-action: none;
+            width: 480px; height: 360px; background: white; 
+            border: 8px solid var(--capy-light); border-radius: 30px; 
+            margin: 10px auto; position: relative; touch-action: none;
+            box-shadow: 0 6px 20px rgba(141, 110, 99, 0.2);
         }
 
-        canvas { display: block; border-radius: 22px; background: transparent; position: relative; z-index: 5; }
+        canvas { display: block; border-radius: 22px; position: relative; z-index: 5; background: transparent; }
 
-        /* 水豚底圖背景 */
-        #capy-bg {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px; height: 200px;
-            opacity: 0.1;
-            z-index: 2;
-            pointer-events: none;
-        }
+        /* 內嵌水豚底圖 */
+        #capy-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; opacity: 0.1; z-index: 1; pointer-events: none; }
 
-        .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 12px; align-items: center; }
-
-        select, button { padding: 12px 18px; font-size: 16px; border-radius: 20px; border: 2px solid var(--capy-light); cursor: pointer; }
-
+        .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 12px; }
+        select, button { padding: 12px 18px; font-size: 16px; border-radius: 20px; border: 2px solid var(--capy-light); cursor: pointer; font-family: inherit; }
         .score-btn { background: var(--capy-brown); color: white; border: none; font-weight: bold; }
 
-        /* 🎉 水豚歡呼動畫層 */
+        /* 歡呼動畫層 */
         #overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: none; background: rgba(255, 255, 255, 0.9); 
             border-radius: 22px; flex-direction: column; justify-content: center; align-items: center; z-index: 100; 
         }
-
-        .cheer-img { width: 150px; animation: bounce 0.6s infinite alternate; }
+        .cheer-img { width: 120px; animation: bounce 0.5s infinite alternate; }
         #grade { font-size: 80px; font-weight: bold; color: #FF7043; margin: 0; }
-
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
         
         @media (max-width: 500px) { #box { width: 95vw; height: 71vw; } }
     </style>
 </head>
 <body>
-
     <h2>✨ 水豚君陪你寫英文 ✨</h2>
-    
     <div class="ui">
         <select id="sel"></select>
         <button id="resetBtn">重寫</button>
         <button class="score-btn" id="scoreBtn">看分數</button>
     </div>
-
     <div id="box">
-        <svg id="capy-bg" viewBox="0 0 100 100">
-            <path d="M85,55 C95,55,95,75,85,75 L80,75 L80,80 C80,85,70,85,70,80 L70,75 L30,75 L30,80 C30,85,20,85,20,80 L20,75 L15,75 C5,75,5,55,15,55 L20,55 L20,50 C20,30,40,20,60,20 C75,20,80,30,80,45 L80,55 L85,55 Z" fill="#8D6E63"/>
-            <circle cx="50" cy="35" r="3" fill="#3E2723"/>
-            <circle cx="70" cy="45" r="3" fill="#3E2723"/>
-        </svg>
-        
+        <svg id="capy-bg" viewBox="0 0 100 100"><path d="M85,55 C95,55,95,75,85,75 L80,75 L80,80 C80,85,70,85,70,80 L70,75 L30,75 L30,80 C30,85,20,85,20,80 L20,75 L15,75 C5,75,5,55,15,55 L20,55 L20,50 C20,30,40,20,60,20 C75,20,80,30,80,45 L80,55 L85,55 Z" fill="#8D6E63"/></svg>
         <canvas id="c" width="480" height="360"></canvas>
-        
         <div id="overlay">
-            <svg class="cheer-img" viewBox="0 0 100 100">
-                <path d="M80,50 C90,50,90,70,80,70 L75,70 L75,75 C75,80,65,80,65,75 L65,70 L25,70 L25,75 C25,80,15,80,15,75 L15,70 L10,70 C0,70,0,50,10,50 L15,50 L15,45 C15,25,35,15,55,15 C70,15,75,25,75,40 L75,50 L80,50 Z" fill="#8D6E63"/>
-                <text x="30" y="60" font-size="20" fill="white">🎉</text>
-            </svg>
+            <svg class="cheer-img" viewBox="0 0 100 100"><path d="M80,50 C90,50,90,70,80,70 L75,70 L75,75 C75,80,65,80,65,75 L65,70 L25,70 L25,75 C25,80,15,80,15,75 L15,70 L10,70 C0,70,0,50,10,50 L15,50 L15,45 C15,25,35,15,55,15 C70,15,75,25,75,40 L75,50 L80,50 Z" fill="#8D6E63"/><text x="25" y="60" font-size="20">🎉</text></svg>
             <div id="grade">A+</div>
-            <p id="msg">太棒了！水豚君為你歡呼</p>
+            <p>水豚君為你歡呼！</p>
         </div>
     </div>
 
@@ -132,8 +93,6 @@
         };
 
         document.getElementById('scoreBtn').onclick = () => {
-            // 簡化判定邏輯，避免 file:// 權限問題
-            document.getElementById('grade').innerText = "A+";
             overlay.style.display = 'flex';
             setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; init(); } }, 2000);
         };
@@ -142,7 +101,6 @@
         window.addEventListener('mouseup', () => drawing = false);
         cvs.addEventListener('touchstart', e => { e.preventDefault(); start(e); });
         cvs.addEventListener('touchmove', e => { e.preventDefault(); move(e); });
-
         document.getElementById('resetBtn').onclick = init;
         sel.onchange = init;
         init();
