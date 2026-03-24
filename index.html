@@ -3,178 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>水豚君森林練習本</title>
+    <title>水豚君陪你寫英文</title>
     <style>
         :root {
-            --capy-brown: #9E7B5C;
-            --capy-light: #D7B98E;
-            --forest-green: #A8D5BA;
-            --soft-bg: #F9F3E7;
+            --capy: #D7A98C;
+            --nose: #A67C5F;
+            --line: #5D4037;
         }
-
-        body { 
-            background-color: var(--soft-bg); 
-            background-image: radial-gradient(#E6D5C3 1px, transparent 1px);
-            background-size: 20px 20px;
-            text-align: center; 
-            font-family: "Microsoft JhengHei", sans-serif; 
-            margin: 0; padding: 20px; 
+        body {
+            margin: 0;
+            padding: 20px 10px;
+            background: #FFF8F0;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            text-align: center;
+            color: var(--line);
         }
-
-        .header { margin-bottom: 20px; }
-        .title { color: #5D4037; font-size: 28px; font-weight: bold; text-shadow: 2px 2px white; }
-
-        .ui-panel { 
-            background: white; width: fit-content; margin: 0 auto 20px;
-            padding: 10px 20px; border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex; gap: 15px; align-items: center;
+        h1 {
+            font-size: 24px;
+            margin: 10px 0 20px;
+            color: #5D4037;
         }
-
-        /* 畫布容器 */
-        #container { 
-            width: 500px; height: 400px; margin: 0 auto; position: relative;
-            background: white; border: 12px solid #D7C4B1; border-radius: 40px;
-            box-shadow: 0 15px 30px rgba(158, 123, 92, 0.2);
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        select, button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+        }
+        select {
+            background: white;
+            border: 2px solid #E6D5C3;
+        }
+        .reset-btn {
+            background: #E6D5C3;
+            color: #5D4037;
+            font-weight: bold;
+        }
+        .score-btn {
+            background: #FF9F80;
+            color: white;
+            font-weight: bold;
+        }
+        #box {
+            width: 480px;
+            height: 360px;
+            max-width: 95vw;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(166,124,95,0.15);
+            position: relative;
             overflow: hidden;
         }
-
-        /* 水豚君浮水印 */
-        .capy-watermark {
-            position: absolute; bottom: 10px; right: 10px; width: 100px; height: 70px;
-            background: var(--capy-brown); border-radius: 50px 50px 10px 10px;
-            opacity: 0.3; pointer-events: none; z-index: 5;
-        }
-        .capy-watermark::before { content: "● ●"; color: #333; position: absolute; top: 20px; left: 25px; letter-spacing: 15px; }
-
-        .letter-bg { 
-            position: absolute; width: 100%; height: 100%; 
-            display: flex; justify-content: center; align-items: center;
-            font-size: 250px; font-weight: bold; color: #F0F0F0; 
-            z-index: 1; user-select: none; pointer-events: none;
+        canvas {
+            display: block;
+            border-radius: 30px;
         }
 
-        canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: url('https://img.icons8.com/color/32/000000/pencil.png'), auto; }
-
-        button { 
-            padding: 8px 25px; border-radius: 20px; border: none; 
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
-        .btn-reset { background: #E0E0E0; color: #666; }
-        .btn-score { background: #FF8A65; color: white; }
-        button:hover { transform: scale(1.05); }
-
-        /* 結算畫面 */
+        /* 慶祝 / 反饋 遮罩 */
         #overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95); z-index: 100; display: none;
-            flex-direction: column; justify-content: center; align-items: center;
-            animation: fadeIn 0.3s;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.92);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 30px;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        #grade { font-size: 120px; color: #FF7043; margin: 0; filter: drop-shadow(2px 5px 0px #FFE0B2); }
-        .decoration { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .capy-stickers {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 10px;
+        }
+        .capy-sticker { width: 110px; height: 110px; }
+        #grade {
+            font-size: 100px;
+            font-weight: 900;
+            margin: 10px 0 8px;
+            line-height: 1;
+        }
+        #feedback {
+            font-size: 22px;
+            font-weight: bold;
+            color: #5D4037;
+        }
+
+        @keyframes jump {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-25px) rotate(8deg); }
+        }
+        .happy { animation: jump 0.7s infinite alternate; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="title">🍊 水豚君の英文練習帖 🍊</div>
+    <h1>🐾 水豚君陪你寫英文 🐾</h1>
+    
+    <div class="controls">
+        <select id="sel"></select>
+        <button class="reset-btn" id="resetBtn">重寫</button>
+        <button class="score-btn" id="scoreBtn">看評分</button>
     </div>
 
-    <div class="ui-panel">
-        <select id="letterSelect" style="font-size: 18px; padding: 5px; border-radius: 10px;"></select>
-        <button class="btn-reset" id="resetBtn">擦乾淨</button>
-        <button class="btn-score" id="scoreBtn">交卷評分</button>
-    </div>
-
-    <div id="container">
-        <div id="letterGuide" class="letter-bg">Aa</div>
+    <div id="box">
+        <canvas id="c" width="480" height="360"></canvas>
         
-        <div class="capy-watermark"></div>
-        
-        <canvas id="canvas" width="500" height="400"></canvas>
-        
+        <!-- 反饋遮罩 -->
         <div id="overlay">
-            <p style="font-size: 24px; color: #8D6E63; margin: 0;">水豚君給你...</p>
-            <h1 id="grade">A+</h1>
-            <p id="msg" style="font-size: 20px; font-weight: bold; color: #5D4037;">寫得太漂亮了！</p>
-            <button class="btn-reset" onclick="document.getElementById('overlay').style.display='none'">再練一次</button>
+            <div class="capy-stickers" id="stickers"></div>
+            <div id="grade">A+</div>
+            <div id="feedback">太厲害了！</div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            const select = document.getElementById('letterSelect');
-            const guide = document.getElementById('letterGuide');
-            const overlay = document.getElementById('overlay');
-            let drawing = false;
+        const cvs = document.getElementById('c');
+        const ctx = cvs.getContext('2d');
+        const sel = document.getElementById('sel');
+        const overlay = document.getElementById('overlay');
+        const gradeEl = document.getElementById('grade');
+        const feedbackEl = document.getElementById('feedback');
+        const stickersEl = document.getElementById('stickers');
 
-            // 建立 A-Z
-            for(let i=65; i<=90; i++) {
-                let char = String.fromCharCode(i);
-                let opt = document.createElement('option');
-                opt.value = char;
-                opt.textContent = `字母 ${char}${char.toLowerCase()}`;
-                select.appendChild(opt);
-            }
+        let drawing = false;
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-            function clear() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                guide.textContent = select.value + select.value.toLowerCase();
-                overlay.style.display = 'none';
-            }
-
-            function start(e) {
-                drawing = true;
-                ctx.beginPath();
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                ctx.moveTo(x, y);
-            }
-
-            function move(e) {
-                if (!drawing) return;
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                ctx.lineWidth = 12;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = '#5482A9'; // 蠟筆深藍色
-                ctx.lineTo(x, y);
-                ctx.stroke();
-            }
-
-            function stop() { drawing = false; }
-
-            function score() {
-                const data = ctx.getImageData(0,0,500,400).data;
-                let count = 0;
-                for(let i=3; i<data.length; i+=4) if(data[i]>0) count++;
-                
-                document.getElementById('grade').textContent = count > 500 ? "A+" : "加油";
-                document.getElementById('msg').textContent = count > 500 ? "水豚君覺得很棒！🍊" : "再多畫幾筆吧！";
-                overlay.style.display = 'flex';
-            }
-
-            canvas.addEventListener('mousedown', start);
-            canvas.addEventListener('mousemove', move);
-            window.addEventListener('mouseup', stop);
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
-            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
-            canvas.addEventListener('touchend', stop);
-
-            document.getElementById('resetBtn').onclick = clear;
-            document.getElementById('scoreBtn').onclick = score;
-            select.onchange = clear;
-
-            clear();
+        // 產生選單
+        alphabet.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l;
+            opt.textContent = `練習 ${l}${l.toLowerCase()}`;
+            sel.appendChild(opt);
         });
+
+        function reset() {
+            overlay.style.display = 'none';
+            ctx.clearRect(0, 0, 480, 360);
+
+            // 四線格
+            ctx.setLineDash([8, 8]);
+            ctx.lineWidth = 1.5;
+            [90, 144, 198, 252].forEach((y, i) => {
+                ctx.strokeStyle = (i === 2) ? "#A3E635" : "#E6D5C3";
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(480, y);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // 底字
+            ctx.font = 'bold 240px Arial';
+            ctx.fillStyle = '#F0E8E0';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
+        }
+
+        function getPos(e) {
+            const r = cvs.getBoundingClientRect();
+            const cx = e.clientX || (e.touches && e.touches[0].clientX);
+            const cy = e.clientY || (e.touches && e.touches[0].clientY);
+            return { x: cx - r.left, y: cy - r.top };
+        }
+
+        function start(e) { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
+        function move(e) {
+            if (!drawing) return;
+            const p = getPos(e);
+            ctx.lineWidth = 18;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#4FC3F7';
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+        }
+        function stop() { drawing = false; }
+
+        // 水豚 SVG 函數
+        function createCapy(happy = true) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 120 120");
+            svg.setAttribute("class", happy ? "capy-sticker happy" : "capy-sticker");
+            svg.innerHTML = happy ? `
+                <ellipse cx="60" cy="68" rx="48" ry="38" fill="#D7A98C" stroke="#5D4037" stroke-width="4"/>
+                <ellipse cx="88" cy="75" rx="22" ry="26" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <ellipse cx="32" cy="65" rx="18" ry="22" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <rect x="40" y="48" width="18" height="4" rx="2" fill="#5D4037" transform="rotate(-20 45 50)"/>
+                <text x="75" y="38" font-size="28">✨</text>
+            ` : `
+                <ellipse cx="60" cy="68" rx="48" ry="38" fill="#D7A98C" stroke="#5D4037" stroke-width="4"/>
+                <ellipse cx="88" cy="75" rx="22" ry="26" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <ellipse cx="32" cy="65" rx="18" ry="22" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <rect x="40" y="48" width="18" height="4" rx="2" fill="#5D4037" transform="rotate(-35 45 50)"/>
+                <text x="78" y="45" font-size="35">😢</text>
+            `;
+            return svg;
+        }
+
+        function showResult(rank) {
+            stickersEl.innerHTML = '';
+            gradeEl.textContent = rank;
+
+            if (rank === "A+" || rank === "A") {
+                // 兩個歡呼水豚
+                stickersEl.appendChild(createCapy(true));
+                stickersEl.appendChild(createCapy(true));
+                feedbackEl.textContent = "太厲害了！水豚君為你歡呼～ 🥳";
+                feedbackEl.style.color = "#FF7043";
+            } 
+            else if (rank === "B+" || rank === "B") {
+                stickersEl.appendChild(createCapy(true));
+                feedbackEl.textContent = "很棒喔！繼續加油～ 💪";
+                feedbackEl.style.color = "#FFB300";
+            } 
+            else {
+                // C+ 或更低 → 哭哭水豚
+                stickersEl.appendChild(createCapy(false));
+                feedbackEl.textContent = "沒關係…下次再努力喔～ 😢";
+                feedbackEl.style.color = "#78909C";
+            }
+
+            overlay.style.display = 'flex';
+        }
+
+        function score() {
+            const w = 480, h = 360;
+            const temp = document.createElement('canvas');
+            temp.width = w; temp.height = h;
+            const tctx = temp.getContext('2d');
+
+            tctx.font = 'bold 240px Arial';
+            tctx.textAlign = 'center';
+            tctx.textBaseline = 'middle';
+            tctx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
+
+            const std = tctx.getImageData(0,0,w,h).data;
+            const cur = ctx.getImageData(0,0,w,h).data;
+
+            let match = 0, total = 0, miss = 0;
+
+            for (let i = 3; i < std.length; i += 4) {
+                if (std[i] > 50) {
+                    total++;
+                    if (cur[i] > 180) match++;
+                } else if (cur[i] > 180) {
+                    miss++;
+                }
+            }
+
+            const accuracy = total > 0 ? match / total : 0;
+            let final = accuracy * 100 - miss * 1.5;
+            let rank = "C+";
+
+            if (final > 88) rank = "A+";
+            else if (final > 75) rank = "A";
+            else if (final > 55) rank = "B+";
+            else if (final > 35) rank = "B";
+
+            showResult(rank);
+
+            // 2秒後自動下一題
+            setTimeout(() => {
+                if (sel.selectedIndex < sel.options.length - 1) {
+                    sel.selectedIndex++;
+                    reset();
+                }
+            }, 2200);
+        }
+
+        // 事件
+        cvs.addEventListener('mousedown', start);
+        cvs.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', stop);
+
+        cvs.addEventListener('touchstart', e => { e.preventDefault(); start(e); });
+        cvs.addEventListener('touchmove', e => { e.preventDefault(); move(e); });
+        cvs.addEventListener('touchend', stop);
+
+        document.getElementById('resetBtn').onclick = reset;
+        document.getElementById('scoreBtn').onclick = score;
+        sel.onchange = reset;
+
+        reset(); // 啟動
     </script>
 </body>
 </html>
