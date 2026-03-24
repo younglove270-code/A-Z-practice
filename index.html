@@ -1,475 +1,235 @@
-src/utils/phonics.js
-export const PHONICS = {
-  A: { name: "A", sound: "æ",  description: "apple",   phrase: "A says /æ/ as in Apple!" },
-  B: { name: "B", sound: "b",  description: "ball",    phrase: "B says /b/ as in Ball!" },
-  C: { name: "C", sound: "k",  description: "cat",     phrase: "C says /k/ as in Cat!" },
-  D: { name: "D", sound: "d",  description: "dog",     phrase: "D says /d/ as in Dog!" },
-  E: { name: "E", sound: "ɛ",  description: "egg",     phrase: "E says /ɛ/ as in Egg!" },
-  F: { name: "F", sound: "f",  description: "fish",    phrase: "F says /f/ as in Fish!" },
-  G: { name: "G", sound: "g",  description: "goat",    phrase: "G says /g/ as in Goat!" },
-  H: { name: "H", sound: "h",  description: "hat",     phrase: "H says /h/ as in Hat!" },
-  I: { name: "I", sound: "ɪ",  description: "igloo",   phrase: "I says /ɪ/ as in Igloo!" },
-  J: { name: "J", sound: "dʒ", description: "jump",    phrase: "J says /dʒ/ as in Jump!" },
-  K: { name: "K", sound: "k",  description: "kite",    phrase: "K says /k/ as in Kite!" },
-  L: { name: "L", sound: "l",  description: "lion",    phrase: "L says /l/ as in Lion!" },
-  M: { name: "M", sound: "m",  description: "moon",    phrase: "M says /m/ as in Moon!" },
-  N: { name: "N", sound: "n",  description: "nose",    phrase: "N says /n/ as in Nose!" },
-  O: { name: "O", sound: "ɒ",  description: "octopus", phrase: "O says /ɒ/ as in Octopus!" },
-  P: { name: "P", sound: "p",  description: "pen",     phrase: "P says /p/ as in Pen!" },
-  Q: { name: "Q", sound: "kw", description: "queen",   phrase: "Q says /kw/ as in Queen!" },
-  R: { name: "R", sound: "r",  description: "rainbow", phrase: "R says /r/ as in Rainbow!" },
-  S: { name: "S", sound: "s",  description: "sun",     phrase: "S says /s/ as in Sun!" },
-  T: { name: "T", sound: "t",  description: "tree",    phrase: "T says /t/ as in Tree!" },
-  U: { name: "U", sound: "ʌ",  description: "umbrella",phrase: "U says /ʌ/ as in Umbrella!" },
-  V: { name: "V", sound: "v",  description: "van",     phrase: "V says /v/ as in Van!" },
-  W: { name: "W", sound: "w",  description: "water",   phrase: "W says /w/ as in Water!" },
-  X: { name: "X", sound: "ks", description: "fox",     phrase: "X says /ks/ as in Fox!" },
-  Y: { name: "Y", sound: "j",  description: "yellow",  phrase: "Y says /j/ as in Yellow!" },
-  Z: { name: "Z", sound: "z",  description: "zebra",   phrase: "Z says /z/ as in Zebra!" },
-};
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>水豚君森林教室 Aa-Zz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #5D4037; --accent: #FF7043; --bg-forest: #F8FAF0; --border-color: #A1887F; }
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background: var(--bg-forest); margin: 0; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .header { margin-bottom: 10px; text-align: center; }
+        .icons { font-size: 40px; margin-bottom: 5px; }
+        h1 { font-weight: 900; color: var(--primary); margin: 0; font-size: 24px; }
+        
+        /* 進度條樣式 */
+        .progress-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-width: 500px; margin: 15px auto; }
+        .progress-dot { width: 28px; height: 28px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #ddd; color: #777; transition: all 0.3s; }
+        .progress-dot.active { background: var(--primary); color: white; transform: scale(1.2); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .progress-dot.done { background: var(--accent); color: white; opacity: 0.8; }
 
-const PHONICS_SPOKEN = {
-  A: "ah", B: "buh", C: "kuh", D: "duh", E: "eh", F: "fuh", G: "guh",
-  H: "huh", I: "ih", J: "juh", K: "kuh", L: "luh", M: "muh", N: "nuh",
-  O: "aw", P: "puh", Q: "kwuh", R: "ruh", S: "sss", T: "tuh", U: "uh",
-  V: "vuh", W: "wuh", X: "ksss", Y: "yuh", Z: "zzz",
-};
+        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        select, button { padding: 10px 18px; border-radius: 25px; border: 2px solid var(--border-color); font-weight: bold; font-size: 16px; cursor: pointer; background: white; }
+        .btn-score { background: var(--accent); color: white; border: none; box-shadow: 0 4px #D84315; }
 
-export function speakLetter(letter) {
-  window.speechSynthesis.cancel();
-  const spoken = PHONICS_SPOKEN[letter];
-  if (!spoken) return;
-  const u = new SpeechSynthesisUtterance(spoken);
-  u.lang = "en-US"; u.rate = 0.7; u.pitch = 1.1;
-  window.speechSynthesis.speak(u);
-}
+        .notebook { position: relative; width: 100%; max-width: 500px; aspect-ratio: 4/3; background: white; border: 10px solid var(--border-color); border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; touch-action: none; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
+        
+        /* 修正後的圖片載入 */
+        .capy-img { position: absolute; bottom: 10px; right: 15px; width: 100px; z-index: 5; pointer-events: none; }
 
-export function speakResult(grade, letter) {
-  window.speechSynthesis.cancel();
-  const phonics = PHONICS[letter];
-  let praise;
-  if (grade === "A+")         praise = `Excellent! You wrote the letter ${letter} perfectly! ${phonics.phrase}`;
-  else if (grade === "B")     praise = `Good job! Keep practicing the letter ${letter}. ${phonics.phrase}`;
-  else if (grade === "C")     praise = `Nice try! Let's practice ${letter} again. ${phonics.phrase}`;
-  else                        praise = `Don't give up! Try writing the letter ${letter} one more time!`;
-  const u = new SpeechSynthesisUtterance(praise);
-  u.lang = "en-US"; u.rate = 0.82; u.pitch = 1.1;
-  window.speechSynthesis.speak(u);
-}
-src/utils/gradeCanvas.js
-const CANVAS_W = 500;
-const CANVAS_H = 380;
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.96); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        #grade-text { font-size: 100px; font-weight: 900; margin: 0; color: var(--accent); }
+    </style>
+</head>
+<body>
 
-function renderTemplate(letter) {
-  const offscreen = document.createElement("canvas");
-  offscreen.width = CANVAS_W; offscreen.height = CANVAS_H;
-  const ctx = offscreen.getContext("2d");
-  ctx.font = "bold 220px Arial";
-  ctx.fillStyle = "#000000";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(letter + letter.toLowerCase(), CANVAS_W / 2, CANVAS_H / 2);
-  return ctx.getImageData(0, 0, CANVAS_W, CANVAS_H);
-}
+    <div class="header">
+        <div class="icons">🎒 🌿 🌲 🍎</div>
+        <h1>✨ 水豚君森林教室 Aa-Zz ✨</h1>
+    </div>
 
-function getAlphaMap(imageData) {
-  const map = new Uint8Array(imageData.width * imageData.height);
-  for (let i = 0; i < map.length; i++) {
-    map[i] = imageData.data[i * 4 + 3] > 20 ? 1 : 0;
-  }
-  return map;
-}
+    <div class="progress-container" id="progressBox"></div>
 
-function dilate(map, w, h, radius) {
-  const out = new Uint8Array(map.length);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      if (map[y * w + x] === 0) continue;
-      for (let dy = -radius; dy <= radius; dy++) {
-        for (let dx = -radius; dx <= radius; dx++) {
-          const ny = y + dy; const nx = x + dx;
-          if (ny >= 0 && ny < h && nx >= 0 && nx < w) out[ny * w + nx] = 1;
-        }
-      }
-    }
-  }
-  return out;
-}
+    <div class="controls">
+        <select id="letterSelect"></select>
+        <button id="btnSpeak">🔊 聽發音</button>
+        <button id="btnReset">擦乾淨</button>
+        <button class="btn-score" id="btnScore">交卷！</button>
+    </div>
 
-export function gradeDrawing(studentCanvas, letter) {
-  const studentCtx = studentCanvas.getContext("2d");
-  const studentData = studentCtx.getImageData(0, 0, CANVAS_W, CANVAS_H);
-  const studentMap = getAlphaMap(studentData);
-  const totalDrawn = studentMap.reduce((s, v) => s + v, 0);
-
-  if (totalDrawn < 200) {
-    return { score: 0, grade: "😶 沒有寫字喔！", color: "#9E9E9E", advance: false };
-  }
-
-  const templateMap = getAlphaMap(renderTemplate(letter));
-  const tolerantTemplate = dilate(templateMap, CANVAS_W, CANVAS_H, 18);
-  const templateTotal = templateMap.reduce((s, v) => s + v, 0);
-
-  let hitCount = 0, strayCount = 0;
-  for (let i = 0; i < studentMap.length; i++) {
-    if (studentMap[i] === 1) {
-      if (tolerantTemplate[i] === 1) hitCount++;
-      else strayCount++;
-    }
-  }
-
-  const coverage = hitCount / Math.max(templateTotal, 1);
-  const accuracy = hitCount / Math.max(totalDrawn, 1);
-  const score = Math.round((coverage * 0.55 + accuracy * 0.45) * 100);
-
-  let grade, color, advance;
-  if (score >= 65)      { grade = "A+";        color = "#FF7043"; advance = true; }
-  else if (score >= 45) { grade = "B";          color = "#43A047"; advance = false; }
-  else if (score >= 25) { grade = "C";          color = "#FB8C00"; advance = false; }
-  else                  { grade = "再試一次！"; color = "#E53935"; advance = false; }
-
-  return { score, grade, color, advance };
-}
-src/components/classroom/CapybaraSVG.jsx
-export default function CapybaraSVG({ className = "" }) {
-  return (
-    <img
-      src="https://media.base44.com/images/public/69c29b6ba4f1963e90202b13/b46f96e5f_generated_image.png"
-      alt="水豚君"
-      className={className}
-      draggable={false}
-    />
-  );
-}
-src/components/classroom/LetterProgress.jsx
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-export default function LetterProgress({ currentLetter }) {
-  const currentIdx = ALPHABET.indexOf(currentLetter);
-  return (
-    <div className="flex flex-wrap justify-center gap-1 px-2 max-w-lg mx-auto">
-      {ALPHABET.map((letter, i) => (
-        <div key={letter}
-          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold font-nunito transition-all duration-300 ${
-            i < currentIdx   ? "bg-accent/80 text-white shadow-sm" :
-            i === currentIdx ? "bg-primary text-primary-foreground shadow-md scale-110" :
-                               "bg-muted/60 text-muted-foreground"
-          }`}>
-          {letter}
+    <div class="notebook">
+        <img class="capy-img" src="https://media.base44.com/images/public/69c29b6ba4f1963e90202b13/b46f96e5f_generated_image.png" alt="Capybara">
+        <canvas id="paintCanvas" width="500" height="380"></canvas>
+        <div id="overlay">
+            <h1 id="grade-text">A+</h1>
+            <p id="feedback-text" style="font-weight:bold;"></p>
+            <p style="font-size: 12px; color: #999;">(點擊畫面繼續)</p>
         </div>
-      ))}
     </div>
-  );
-}
-src/components/classroom/LetterSelector.jsx
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Eraser, Send, Volume2 } from "lucide-react";
 
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    <script>
+        // 封裝所有邏輯在一個物件中，避免全域變數污染與定義錯誤
+        const App = {
+            currentLetter: 'A',
+            isDrawing: false,
+            hasDrawn: false,
+            abc: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+            phonics: {
+                A: { v: "ah", p: "A says /æ/ as in Apple!" },
+                B: { v: "buh", p: "B says /b/ as in Ball!" },
+                C: { v: "kuh", p: "C says /k/ as in Cat!" },
+                D: { v: "duh", p: "D says /d/ as in Dog!" },
+                E: { v: "eh", p: "E says /ɛ/ as in Egg!" },
+                F: { v: "fuh", p: "F says /f/ as in Fish!" },
+                G: { v: "guh", p: "G says /g/ as in Goat!" },
+                H: { v: "huh", p: "H says /h/ as in Hat!" },
+                I: { v: "ih", p: "I says /ɪ/ as in Igloo!" },
+                J: { v: "juh", p: "J says /dʒ/ as in Jump!" },
+                K: { v: "kuh", p: "K says /k/ as in Kite!" },
+                L: { v: "luh", p: "L says /l/ as in Lion!" },
+                M: { v: "muh", p: "M says /m/ as in Moon!" },
+                N: { v: "nuh", p: "N says /n/ as in Nose!" },
+                O: { v: "aw", p: "O says /ɒ/ as in Octopus!" },
+                P: { v: "puh", p: "P says /p/ as in Pen!" },
+                Q: { v: "kwuh", p: "Q says /kw/ as in Queen!" },
+                R: { v: "ruh", p: "R says /r/ as in Rainbow!" },
+                S: { v: "sss", p: "S says /s/ as in Sun!" },
+                T: { v: "tuh", p: "T says /t/ as in Tree!" },
+                U: { v: "uh", p: "U says /ʌ/ as in Umbrella!" },
+                V: { v: "vuh", p: "V says /v/ as in Van!" },
+                W: { v: "wuh", p: "W says /w/ as in Water!" },
+                X: { v: "ksss", p: "X says /ks/ as in Fox!" },
+                Y: { v: "yuh", p: "Y says /j/ as in Yellow!" },
+                Z: { v: "zzz", p: "Z says /z/ as in Zebra!" }
+            },
 
-export default function LetterSelector({ selectedLetter, onLetterChange, onReset, onScore, onSpeak }) {
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-3">
-      <Select value={selectedLetter} onValueChange={onLetterChange}>
-        <SelectTrigger className="w-48 rounded-full bg-white/80 border-2 border-accent/40 font-nunito font-bold text-base shadow-sm">
-          <SelectValue placeholder="選擇字母" />
-        </SelectTrigger>
-        <SelectContent className="font-nunito max-h-60">
-          {ALPHABET.map((letter) => (
-            <SelectItem key={letter} value={letter} className="font-bold text-base">
-              練習字母 {letter}{letter.toLowerCase()}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            init() {
+                this.canvas = document.getElementById('paintCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.sel = document.getElementById('letterSelect');
+                this.overlay = document.getElementById('overlay');
+                
+                // 初始化下拉選單
+                this.abc.forEach(l => {
+                    let opt = document.createElement('option');
+                    opt.value = l; opt.innerHTML = `練習字母 ${l}${l.toLowerCase()}`;
+                    this.sel.appendChild(opt);
+                });
 
-      <Button variant="outline" onClick={onSpeak}
-        className="rounded-full bg-secondary/80 border-2 border-secondary font-nunito font-bold gap-2 px-5 shadow-sm hover:bg-secondary">
-        <Volume2 className="w-4 h-4" />聽發音
-      </Button>
+                // 綁定事件 (解決按鈕找不到 function 的問題)
+                document.getElementById('btnSpeak').onclick = () => this.speak();
+                document.getElementById('btnReset').onclick = () => this.reset();
+                document.getElementById('btnScore').onclick = () => this.submit();
+                this.overlay.onclick = () => this.overlay.style.display = 'none';
+                this.sel.onchange = (e) => { this.currentLetter = e.target.value; this.reset(); };
 
-      <Button variant="outline" onClick={onReset}
-        className="rounded-full bg-muted/80 border-2 border-border font-nunito font-bold gap-2 px-5 shadow-sm hover:bg-muted">
-        <Eraser className="w-4 h-4" />擦乾淨
-      </Button>
+                // 繪圖事件
+                this.canvas.addEventListener('mousedown', (e) => this.start(e));
+                this.canvas.addEventListener('mousemove', (e) => this.move(e));
+                window.addEventListener('mouseup', () => this.isDrawing = false);
+                this.canvas.addEventListener('touchstart', (e) => this.start(e));
+                this.canvas.addEventListener('touchmove', (e) => this.move(e));
+                
+                this.reset();
+            },
 
-      <Button onClick={onScore}
-        className="rounded-full bg-accent text-accent-foreground font-nunito font-extrabold gap-2 px-6 shadow-md hover:bg-accent/90 border-none">
-        <Send className="w-4 h-4" />交卷！
-      </Button>
-    </div>
-  );
-}
-src/components/classroom/LetterCanvas.jsx
-import { useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
-import CapybaraSVG from "./CapybaraSVG";
+            reset() {
+                this.overlay.style.display = 'none';
+                this.hasDrawn = false;
+                this.ctx.clearRect(0, 0, 500, 380);
+                
+                // 畫底字範本
+                this.ctx.font = "bold 220px Arial";
+                this.ctx.fillStyle = "rgba(0,0,0,0.07)";
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "middle";
+                this.ctx.fillText(this.currentLetter + this.currentLetter.toLowerCase(), 250, 190);
 
-const LetterCanvas = forwardRef(function LetterCanvas({ letter, resetKey }, ref) {
-  const canvasRef = useRef(null);
-  const drawingRef = useRef(false);
-  const hasDrawnRef = useRef(false);
+                // 畫輔助線
+                this.ctx.setLineDash([8, 8]);
+                this.ctx.strokeStyle = "#E6D5C3";
+                [90, 144, 198, 252].forEach(y => {
+                    this.ctx.beginPath(); this.ctx.moveTo(0, y); this.ctx.lineTo(500, y); this.ctx.stroke();
+                });
+                this.ctx.setLineDash([]);
+                this.updateProgress();
+            },
 
-  useImperativeHandle(ref, () => ({
-    getCanvas: () => canvasRef.current,
-    hasDrawn: () => hasDrawnRef.current,
-  }));
+            getPos(e) {
+                const r = this.canvas.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return {
+                    x: (clientX - r.left) * (500 / r.width),
+                    y: (clientY - r.top) * (380 / r.height)
+                };
+            },
 
-  const getPos = useCallback((e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const scaleX = canvasRef.current.width / rect.width;
-    const scaleY = canvasRef.current.height / rect.height;
-    const clientX = e.clientX ?? e.touches?.[0]?.clientX;
-    const clientY = e.clientY ?? e.touches?.[0]?.clientY;
-    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-  }, []);
+            start(e) {
+                e.preventDefault();
+                this.isDrawing = true;
+                this.hasDrawn = true;
+                const p = this.getPos(e);
+                this.ctx.beginPath();
+                this.ctx.moveTo(p.x, p.y);
+            },
 
-  const drawTemplate = useCallback(() => {
-    const cvs = canvasRef.current;
-    if (!cvs) return;
-    const ctx = cvs.getContext("2d");
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
-    hasDrawnRef.current = false;
+            move(e) {
+                if (!this.isDrawing) return;
+                e.preventDefault();
+                const p = this.getPos(e);
+                this.ctx.lineWidth = 14;
+                this.ctx.lineCap = "round";
+                this.ctx.strokeStyle = "#4FC3F7";
+                this.ctx.lineTo(p.x, p.y);
+                this.ctx.stroke();
+            },
 
-    ctx.font = "bold 220px Arial";
-    ctx.fillStyle = "rgba(0,0,0,0.07)";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(letter + letter.toLowerCase(), cvs.width / 2, cvs.height / 2);
+            speak() {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(this.phonics[this.currentLetter].v);
+                u.lang = "en-US"; u.rate = 0.7;
+                window.speechSynthesis.speak(u);
+            },
 
-    ctx.setLineDash([8, 8]);
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "#E6D5C3";
-    [0.24, 0.38, 0.52, 0.66].forEach((pct) => {
-      const y = cvs.height * pct;
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cvs.width, y); ctx.stroke();
-    });
-    ctx.setLineDash([]);
-  }, [letter]);
+            submit() {
+                if (!this.hasDrawn) {
+                    this.showResult("😶", "還沒寫字喔！", "#9E9E9E");
+                    return;
+                }
+                const msg = `太棒了！ ${this.phonics[this.currentLetter].p}`;
+                this.showResult("A+", msg, "#FF7043");
+                
+                const u = new SpeechSynthesisUtterance(msg);
+                u.lang = "en-US"; window.speechSynthesis.speak(u);
 
-  useEffect(() => { drawTemplate(); }, [letter, resetKey, drawTemplate]);
+                // 自動跳下一格
+                setTimeout(() => {
+                    let idx = this.abc.indexOf(this.currentLetter);
+                    if (idx < 25) {
+                        this.currentLetter = this.abc[idx + 1];
+                        this.sel.value = this.currentLetter;
+                        this.reset();
+                    }
+                }, 2500);
+            },
 
-  const startDraw = useCallback((e) => {
-    e.preventDefault();
-    drawingRef.current = true; hasDrawnRef.current = true;
-    const ctx = canvasRef.current.getContext("2d");
-    ctx.beginPath();
-    const p = getPos(e); ctx.moveTo(p.x, p.y);
-  }, [getPos]);
+            showResult(grade, msg, color) {
+                document.getElementById('grade-text').innerText = grade;
+                document.getElementById('grade-text').style.color = color;
+                document.getElementById('feedback-text').innerText = msg;
+                this.overlay.style.display = 'flex';
+            },
 
-  const moveDraw = useCallback((e) => {
-    if (!drawingRef.current) return;
-    e.preventDefault();
-    const ctx = canvasRef.current.getContext("2d");
-    const p = getPos(e);
-    ctx.lineWidth = 14; ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.strokeStyle = "#4FC3F7";
-    ctx.lineTo(p.x, p.y); ctx.stroke();
-  }, [getPos]);
+            updateProgress() {
+                const box = document.getElementById('progressBox');
+                box.innerHTML = '';
+                const currIdx = this.abc.indexOf(this.currentLetter);
+                this.abc.forEach((l, i) => {
+                    const dot = document.createElement('div');
+                    dot.className = `progress-dot ${i === currIdx ? 'active' : (i < currIdx ? 'done' : '')}`;
+                    dot.innerText = l;
+                    box.appendChild(dot);
+                });
+            }
+        };
 
-  const stopDraw = useCallback(() => { drawingRef.current = false; }, []);
-
-  useEffect(() => {
-    const cvs = canvasRef.current;
-    if (!cvs) return;
-    cvs.addEventListener("mousedown", startDraw);
-    cvs.addEventListener("mousemove", moveDraw);
-    window.addEventListener("mouseup", stopDraw);
-    cvs.addEventListener("touchstart", startDraw, { passive: false });
-    cvs.addEventListener("touchmove", moveDraw, { passive: false });
-    cvs.addEventListener("touchend", stopDraw);
-    return () => {
-      cvs.removeEventListener("mousedown", startDraw);
-      cvs.removeEventListener("mousemove", moveDraw);
-      window.removeEventListener("mouseup", stopDraw);
-      cvs.removeEventListener("touchstart", startDraw);
-      cvs.removeEventListener("touchmove", moveDraw);
-      cvs.removeEventListener("touchend", stopDraw);
-    };
-  }, [startDraw, moveDraw, stopDraw]);
-
-  return (
-    <div className="relative w-full aspect-[4/3] max-w-lg mx-auto bg-white border-[10px] border-primary/30 rounded-[2rem] shadow-xl overflow-hidden touch-none">
-      <div className="absolute bottom-3 right-3 z-10 pointer-events-none opacity-90">
-        <CapybaraSVG className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-md" />
-      </div>
-      <canvas ref__={canvasRef} width={500} height={380}
-        className="w-full h-full block rounded-[1.5rem] relative z-20 cursor-crosshair"
-        style={{ background: "transparent" }} />
-    </div>
-  );
-});
-
-export default LetterCanvas;
-src/components/classroom/CelebrationOverlay.jsx
-import { motion, AnimatePresence } from "framer-motion";
-import CapybaraSVG from "./CapybaraSVG";
-import { PHONICS } from "../../utils/phonics";
-
-const GRADE_CONFIG = {
-  "A+":              { label: "A+",       color: "#FF7043", shadow: "#FFE0B2", message: "寫得太漂亮了！水豚君為你歡呼！🍊", emoji: ["🍊","⭐","✨","🎉","🌸","🌟"] },
-  "B":               { label: "B",        color: "#43A047", shadow: "#C8E6C9", message: "寫得不錯喔！再練習一次會更好！🌿",  emoji: ["🌿","👏","✨","🌱","💚","⭐"] },
-  "C":               { label: "C",        color: "#FB8C00", shadow: "#FFE0B2", message: "繼續加油！水豚君相信你可以的！💪",  emoji: ["💪","🌿","🍊","😊","✏️","💫"] },
-  "再試一次！":       { label: "再試\n一次",color: "#E53935", shadow: "#FFCDD2", message: "沒關係！擦掉重寫，你一定可以的！✏️",emoji: ["✏️","💪","🌿","😊","🍀","💫"] },
-  "😶 沒有寫字喔！": { label: "?",        color: "#9E9E9E", shadow: "#F5F5F5", message: "先動筆寫字吧！水豚君在等你！✏️",    emoji: ["✏️","📝","🖊️","💭","🌿","😊"] },
-};
-
-export default function CelebrationOverlay({ show, grade, score, letter, onDismiss }) {
-  const config = GRADE_CONFIG[grade] || GRADE_CONFIG["再試一次！"];
-  const phonics = PHONICS[letter] || {};
-
-  return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.85 }}
-          transition={{ type: "spring", damping: 18, stiffness: 200 }}
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 rounded-[2rem] cursor-pointer"
-          onClick={onDismiss}
-        >
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-            transition={{ delay: 0.1, type: "spring", damping: 10 }}
-            className="text-7xl sm:text-8xl font-black font-nunito leading-none whitespace-pre-line text-center"
-            style={{ color: config.color, textShadow: `3px 3px 0px ${config.shadow}` }}>
-            {config.label}
-          </motion.div>
-
-          {score !== undefined && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }} className="mt-3 px-8 w-full max-w-xs">
-              <div className="flex justify-between text-xs font-nunito font-bold mb-1 text-muted-foreground">
-                <span>相似度</span><span>{score}%</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${score}%` }}
-                  transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
-                  className="h-3 rounded-full" style={{ backgroundColor: config.color }} />
-              </div>
-            </motion.div>
-          )}
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }} className="flex flex-col items-center gap-1 mt-3">
-            <CapybaraSVG className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
-            <p className="text-base sm:text-lg font-bold font-nunito text-primary text-center px-4">{config.message}</p>
-            <p className="text-xs sm:text-sm text-muted-foreground font-nunito mt-1">
-              <span className="font-bold text-primary">{letter}{letter?.toLowerCase()}</span>
-              {phonics.description ? ` — ${phonics.description}` : ""}
-            </p>
-            <p className="text-[11px] text-muted-foreground mt-1">（點擊任意處關閉）</p>
-          </motion.div>
-
-          <motion.div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[2rem]"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {[...Array(12)].map((_, i) => (
-              <motion.span key={i} className="absolute text-2xl"
-                initial={{ x: `${10 + Math.random() * 80}%`, y: "110%", opacity: 1 }}
-                animate={{ y: "-10%", opacity: [1, 1, 0], rotate: Math.random() * 360 }}
-                transition={{ duration: 2 + Math.random(), delay: Math.random() * 0.6, ease: "easeOut" }}>
-                {config.emoji[i % config.emoji.length]}
-              </motion.span>
-            ))}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-📁 src/pages/Classroom.jsx
-import { useState, useCallback, useRef } from "react";
-import LetterSelector from "../components/classroom/LetterSelector";
-import LetterCanvas from "../components/classroom/LetterCanvas";
-import CelebrationOverlay from "../components/classroom/CelebrationOverlay";
-import LetterProgress from "../components/classroom/LetterProgress";
-import { gradeDrawing } from "../utils/gradeCanvas";
-import { speakLetter, speakResult, PHONICS } from "../utils/phonics";
-
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const BG_IMAGE = "https://media.base44.com/images/public/69c29b6ba4f1963e90202b13/b01444a69_generated_image.png";
-
-export default function Classroom() {
-  const [letter, setLetter] = useState("A");
-  const [resetKey, setResetKey] = useState(0);
-  const [celebration, setCelebration] = useState(null);
-  const canvasRef = useRef(null);
-  const autoAdvanceTimer = useRef(null);
-
-  const handleReset = useCallback(() => {
-    setResetKey((k) => k + 1);
-    setCelebration(null);
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-  }, []);
-
-  const handleSpeak = useCallback(() => { speakLetter(letter); }, [letter]);
-
-  const handleScore = useCallback(() => {
-    const canvas = canvasRef.current?.getCanvas();
-    if (!canvas) return;
-    const result = gradeDrawing(canvas, letter);
-    setCelebration({ grade: result.grade, score: result.score });
-    speakResult(result.grade, letter);
-    if (result.advance) {
-      autoAdvanceTimer.current = setTimeout(() => {
-        const idx = ALPHABET.indexOf(letter);
-        if (idx < 25) setLetter(ALPHABET[idx + 1]);
-        setResetKey((k) => k + 1);
-        setCelebration(null);
-      }, 1000);
-    }
-  }, [letter]);
-
-  const handleDismiss = useCallback(() => {
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    setCelebration(null);
-  }, []);
-
-  const handleLetterChange = useCallback((val) => {
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    setLetter(val); setCelebration(null); setResetKey((k) => k + 1);
-  }, []);
-
-  const phonics = PHONICS[letter];
-
-  return (
-    <div className="min-h-screen font-nunito relative overflow-hidden"
-      style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(248,250,240,0.85), rgba(248,250,240,0.7)), url(${BG_IMAGE})`,
-        backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed",
-      }}>
-      <div className="pt-6 pb-2 text-center">
-        <div className="text-4xl sm:text-5xl mb-1 drop-shadow-sm select-none">🎒 🌿 🌲 🍎</div>
-        <h1 className="text-2xl sm:text-3xl font-black text-primary tracking-wide">✨ 水豚君森林教室 Aa-Zz ✨</h1>
-        <p className="text-sm text-muted-foreground mt-1">跟著水豚君一起練習寫英文字母吧！</p>
-      </div>
-
-      <div className="mt-3 mb-4"><LetterProgress currentLetter={letter} /></div>
-
-      <div className="mb-4 px-4">
-        <LetterSelector selectedLetter={letter} onLetterChange={handleLetterChange}
-          onReset={handleReset} onScore={handleScore} onSpeak={handleSpeak} />
-      </div>
-
-      <div className="px-4 pb-4 relative">
-        <div className="relative max-w-lg mx-auto">
-          <LetterCanvas ref__={canvasRef} letter={letter} resetKey={resetKey} />
-          <CelebrationOverlay show={!!celebration} grade={celebration?.grade}
-            score={celebration?.score} letter={letter} onDismiss={handleDismiss} />
-        </div>
-        <div className="text-center mt-4">
-          <div className="inline-flex flex-col items-center bg-white/80 rounded-2xl px-6 py-3 shadow-sm border border-border gap-1">
-            <div>
-              <span className="text-4xl sm:text-5xl font-black text-primary">{letter}</span>
-              <span className="text-4xl sm:text-5xl font-black text-accent ml-2">{letter.toLowerCase()}</span>
-            </div>
-            {phonics && (
-              <div className="text-xs sm:text-sm text-muted-foreground font-nunito font-semibold">
-                /{phonics.sound}/ &nbsp;·&nbsp; <span className="capitalize">{phonics.description}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+        // 核心修正：確保在 DOM 完全載入後才執行初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+    </script>
+</body>
+</html>
