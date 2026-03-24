@@ -7,93 +7,87 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #5D4037; --accent: #FF7043; --bg-forest: #F8FAF0; --border-color: #A1887F; }
-        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; }
-        body { background: var(--bg-forest); margin: 0; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        * { box-sizing: border-box; font-family: 'Nunito', 'Microsoft JhengHei', sans-serif; }
+        body { background: var(--bg-forest); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         .header { margin-bottom: 10px; text-align: center; }
-        .icons { font-size: 40px; margin-bottom: 5px; }
+        .icons { font-size: 30px; margin-bottom: 5px; }
         h1 { font-weight: 900; color: var(--primary); margin: 0; font-size: 24px; }
         
-        /* 進度條樣式 */
-        .progress-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-width: 500px; margin: 15px auto; }
-        .progress-dot { width: 28px; height: 28px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #ddd; color: #777; transition: all 0.3s; }
-        .progress-dot.active { background: var(--primary); color: white; transform: scale(1.2); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .progress-dot.done { background: var(--accent); color: white; opacity: 0.8; }
-
-        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 15px 0; }
         select, button { padding: 10px 18px; border-radius: 25px; border: 2px solid var(--border-color); font-weight: bold; font-size: 16px; cursor: pointer; background: white; }
         .btn-score { background: var(--accent); color: white; border: none; box-shadow: 0 4px #D84315; }
+        .btn-score:active { transform: translateY(2px); box-shadow: 0 2px #D84315; }
 
         .notebook { position: relative; width: 100%; max-width: 500px; aspect-ratio: 4/3; background: white; border: 10px solid var(--border-color); border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; touch-action: none; }
-        canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
-        
-        /* 修正後的圖片載入 */
-        .capy-img { position: absolute; bottom: 10px; right: 15px; width: 100px; z-index: 5; pointer-events: none; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; width: 100%; height: 100%; }
+        .capy-img { position: absolute; bottom: 10px; right: 15px; width: 80px; z-index: 5; pointer-events: none; }
 
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.96); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        #grade-text { font-size: 100px; font-weight: 900; margin: 0; color: var(--accent); }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.96); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        #grade-text { font-size: 80px; font-weight: 900; margin: 0; color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="icons">🎒 🌿 🌲 🍎</div>
-        <h1>✨ 水豚君森林教室 Aa-Zz ✨</h1>
+        <div class="icons">🏫 🌲 🔤</div>
+        <h1>水豚君森林教室 Aa-Zz</h1>
     </div>
-
-    <div class="progress-container" id="progressBox"></div>
 
     <div class="controls">
         <select id="letterSelect"></select>
         <button id="btnSpeak">🔊 聽發音</button>
         <button id="btnReset">擦乾淨</button>
-        <button class="btn-score" id="btnScore">交卷！</button>
+        <button class="btn-score" id="btnScore">寫好了！</button>
     </div>
 
     <div class="notebook">
-        <img class="capy-img" src="https://media.base44.com/images/public/69c29b6ba4f1963e90202b13/b46f96e5f_generated_image.png" alt="Capybara">
+        <img class="capy-img" src="https://media.base44.com/images/public/69c29b6ba4f1963e90202b13/b46f96e5f_generated_image.png" alt="Capy">
         <canvas id="paintCanvas" width="500" height="380"></canvas>
         <div id="overlay">
             <h1 id="grade-text">A+</h1>
-            <p id="feedback-text" style="font-weight:bold;"></p>
-            <p style="font-size: 12px; color: #999;">(點擊畫面繼續)</p>
+            <p id="feedback-text" style="font-weight:bold; font-size: 18px;"></p>
+            <p style="font-size: 14px; color: #999; margin-top: 20px;">(點擊畫面繼續練習)</p>
         </div>
     </div>
 
     <script>
-        // 封裝所有邏輯在一個物件中，避免全域變數污染與定義錯誤
+        // 1. 資料定義 (從你的截圖邏輯整合)
+        const PHONICS = {
+            A: { name: "A", sound: "æ", desc: "apple", phrase: "A says /æ/ as in Apple!" },
+            B: { name: "B", sound: "b", desc: "ball", phrase: "B says /b/ as in Ball!" },
+            C: { name: "C", sound: "k", desc: "cat", phrase: "C says /k/ as in Cat!" },
+            D: { name: "D", sound: "d", desc: "dog", phrase: "D says /d/ as in Dog!" },
+            E: { name: "E", sound: "e", desc: "egg", phrase: "E says /e/ as in Egg!" },
+            F: { name: "F", sound: "f", desc: "fish", phrase: "F says /f/ as in Fish!" },
+            G: { name: "G", sound: "g", desc: "goat", phrase: "G says /g/ as in Goat!" },
+            H: { name: "H", sound: "h", desc: "hat", phrase: "H says /h/ as in Hat!" },
+            I: { name: "I", sound: "i", desc: "igloo", phrase: "I says /i/ as in Igloo!" },
+            J: { name: "J", sound: "j", desc: "jump", phrase: "J says /j/ as in Jump!" },
+            K: { name: "K", sound: "k", desc: "kite", phrase: "K says /k/ as in Kite!" },
+            L: { name: "L", sound: "l", desc: "lion", phrase: "L says /l/ as in Lion!" },
+            M: { name: "M", sound: "m", desc: "moon", phrase: "M says /m/ as in Moon!" },
+            N: { name: "N", sound: "n", desc: "nose", phrase: "N says /n/ as in Nose!" },
+            O: { name: "O", sound: "o", desc: "octopus", phrase: "O says /o/ as in Octopus!" },
+            P: { name: "P", sound: "p", desc: "pen", phrase: "P says /p/ as in Pen!" },
+            Q: { name: "Q", sound: "q", desc: "queen", phrase: "Q says /q/ as in Queen!" },
+            R: { name: "R", sound: "r", desc: "rainbow", phrase: "R says /r/ as in Rainbow!" },
+            S: { name: "S", sound: "s", desc: "sun", phrase: "S says /s/ as in Sun!" },
+            T: { name: "T", sound: "t", desc: "tree", phrase: "T says /t/ as in Tree!" },
+            U: { name: "U", sound: "u", desc: "umbrella", phrase: "U says /u/ as in Umbrella!" },
+            V: { name: "V", sound: "v", desc: "van", phrase: "V says /v/ as in Van!" },
+            W: { name: "W", sound: "w", desc: "water", phrase: "W says /w/ as in Water!" },
+            X: { name: "X", sound: "x", desc: "fox", phrase: "X says /x/ as in Fox!" },
+            Y: { name: "Y", sound: "y", desc: "yellow", phrase: "Y says /y/ as in Yellow!" },
+            Z: { name: "Z", sound: "z", desc: "zebra", phrase: "Z says /z/ as in Zebra!" }
+        };
+
+        const PHONICS_SPOKEN = { A:"ah", B:"buh", C:"kuh", D:"duh", E:"eh", F:"fuh", G:"guh", H:"huh", I:"ih", J:"juh", K:"kuh", L:"luh", M:"muh", N:"nuh", O:"aw", P:"puh", Q:"kwuh", R:"ruh", S:"sss", T:"tuh", U:"uh", V:"vuh", W:"wuh", X:"ksss", Y:"yuh", Z:"zzz" };
+
+        // 2. 程式邏輯主體
         const App = {
             currentLetter: 'A',
             isDrawing: false,
             hasDrawn: false,
-            abc: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
-            phonics: {
-                A: { v: "ah", p: "A says /æ/ as in Apple!" },
-                B: { v: "buh", p: "B says /b/ as in Ball!" },
-                C: { v: "kuh", p: "C says /k/ as in Cat!" },
-                D: { v: "duh", p: "D says /d/ as in Dog!" },
-                E: { v: "eh", p: "E says /ɛ/ as in Egg!" },
-                F: { v: "fuh", p: "F says /f/ as in Fish!" },
-                G: { v: "guh", p: "G says /g/ as in Goat!" },
-                H: { v: "huh", p: "H says /h/ as in Hat!" },
-                I: { v: "ih", p: "I says /ɪ/ as in Igloo!" },
-                J: { v: "juh", p: "J says /dʒ/ as in Jump!" },
-                K: { v: "kuh", p: "K says /k/ as in Kite!" },
-                L: { v: "luh", p: "L says /l/ as in Lion!" },
-                M: { v: "muh", p: "M says /m/ as in Moon!" },
-                N: { v: "nuh", p: "N says /n/ as in Nose!" },
-                O: { v: "aw", p: "O says /ɒ/ as in Octopus!" },
-                P: { v: "puh", p: "P says /p/ as in Pen!" },
-                Q: { v: "kwuh", p: "Q says /kw/ as in Queen!" },
-                R: { v: "ruh", p: "R says /r/ as in Rainbow!" },
-                S: { v: "sss", p: "S says /s/ as in Sun!" },
-                T: { v: "tuh", p: "T says /t/ as in Tree!" },
-                U: { v: "uh", p: "U says /ʌ/ as in Umbrella!" },
-                V: { v: "vuh", p: "V says /v/ as in Van!" },
-                W: { v: "wuh", p: "W says /w/ as in Water!" },
-                X: { v: "ksss", p: "X says /ks/ as in Fox!" },
-                Y: { v: "yuh", p: "Y says /j/ as in Yellow!" },
-                Z: { v: "zzz", p: "Z says /z/ as in Zebra!" }
-            },
 
             init() {
                 this.canvas = document.getElementById('paintCanvas');
@@ -101,135 +95,99 @@
                 this.sel = document.getElementById('letterSelect');
                 this.overlay = document.getElementById('overlay');
                 
-                // 初始化下拉選單
-                this.abc.forEach(l => {
+                // 填充下拉選單
+                Object.keys(PHONICS).forEach(l => {
                     let opt = document.createElement('option');
-                    opt.value = l; opt.innerHTML = `練習字母 ${l}${l.toLowerCase()}`;
+                    opt.value = l; opt.innerHTML = `字母 ${l}${l.toLowerCase()}`;
                     this.sel.appendChild(opt);
                 });
 
-                // 綁定事件 (解決按鈕找不到 function 的問題)
+                // 綁定按鈕
                 document.getElementById('btnSpeak').onclick = () => this.speak();
                 document.getElementById('btnReset').onclick = () => this.reset();
-                document.getElementById('btnScore').onclick = () => this.submit();
+                document.getElementById('btnScore').onclick = () => this.grade();
                 this.overlay.onclick = () => this.overlay.style.display = 'none';
                 this.sel.onchange = (e) => { this.currentLetter = e.target.value; this.reset(); };
 
-                // 繪圖事件
-                this.canvas.addEventListener('mousedown', (e) => this.start(e));
-                this.canvas.addEventListener('mousemove', (e) => this.move(e));
-                window.addEventListener('mouseup', () => this.isDrawing = false);
-                this.canvas.addEventListener('touchstart', (e) => this.start(e));
-                this.canvas.addEventListener('touchmove', (e) => this.move(e));
-                
+                // 滑鼠/觸控事件
+                const startEvent = (e) => { e.preventDefault(); this.isDrawing = true; this.hasDrawn = true; this.draw(e, true); };
+                const moveEvent = (e) => { if(this.isDrawing) { e.preventDefault(); this.draw(e); } };
+                const endEvent = () => { this.isDrawing = false; this.ctx.beginPath(); };
+
+                this.canvas.addEventListener('mousedown', startEvent);
+                this.canvas.addEventListener('mousemove', moveEvent);
+                window.addEventListener('mouseup', endEvent);
+                this.canvas.addEventListener('touchstart', startEvent, {passive: false});
+                this.canvas.addEventListener('touchmove', moveEvent, {passive: false});
+                this.canvas.addEventListener('touchend', endEvent);
+
                 this.reset();
             },
 
             reset() {
-                this.overlay.style.display = 'none';
-                this.hasDrawn = false;
                 this.ctx.clearRect(0, 0, 500, 380);
-                
-                // 畫底字範本
-                this.ctx.font = "bold 220px Arial";
-                this.ctx.fillStyle = "rgba(0,0,0,0.07)";
+                this.hasDrawn = false;
+                this.overlay.style.display = 'none';
+
+                // 畫底圖字體
+                this.ctx.font = "bold 200px Arial";
+                this.ctx.fillStyle = "rgba(0,0,0,0.05)";
                 this.ctx.textAlign = "center";
                 this.ctx.textBaseline = "middle";
                 this.ctx.fillText(this.currentLetter + this.currentLetter.toLowerCase(), 250, 190);
-
-                // 畫輔助線
-                this.ctx.setLineDash([8, 8]);
-                this.ctx.strokeStyle = "#E6D5C3";
-                [90, 144, 198, 252].forEach(y => {
+                
+                // 畫虛線
+                this.ctx.setLineDash([10, 10]);
+                this.ctx.strokeStyle = "#eee";
+                [100, 190, 280].forEach(y => {
                     this.ctx.beginPath(); this.ctx.moveTo(0, y); this.ctx.lineTo(500, y); this.ctx.stroke();
                 });
                 this.ctx.setLineDash([]);
-                this.updateProgress();
             },
 
-            getPos(e) {
-                const r = this.canvas.getBoundingClientRect();
+            draw(e, isStart = false) {
+                const rect = this.canvas.getBoundingClientRect();
                 const clientX = e.clientX || (e.touches && e.touches[0].clientX);
                 const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                return {
-                    x: (clientX - r.left) * (500 / r.width),
-                    y: (clientY - r.top) * (380 / r.height)
-                };
-            },
+                const x = (clientX - rect.left) * (500 / rect.width);
+                const y = (clientY - rect.top) * (380 / rect.height);
 
-            start(e) {
-                e.preventDefault();
-                this.isDrawing = true;
-                this.hasDrawn = true;
-                const p = this.getPos(e);
-                this.ctx.beginPath();
-                this.ctx.moveTo(p.x, p.y);
-            },
-
-            move(e) {
-                if (!this.isDrawing) return;
-                e.preventDefault();
-                const p = this.getPos(e);
-                this.ctx.lineWidth = 14;
+                this.ctx.lineWidth = 12;
                 this.ctx.lineCap = "round";
-                this.ctx.strokeStyle = "#4FC3F7";
-                this.ctx.lineTo(p.x, p.y);
+                this.ctx.lineJoin = "round";
+                this.ctx.strokeStyle = "#432E27"; // 深棕色筆觸
+
+                if(isStart) this.ctx.beginPath();
+                this.ctx.lineTo(x, y);
                 this.ctx.stroke();
             },
 
             speak() {
                 window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(this.phonics[this.currentLetter].v);
-                u.lang = "en-US"; u.rate = 0.7;
+                const u = new SpeechSynthesisUtterance(PHONICS_SPOKEN[this.currentLetter]);
+                u.lang = "en-US"; u.rate = 0.8;
                 window.speechSynthesis.speak(u);
             },
 
-            submit() {
-                if (!this.hasDrawn) {
-                    this.showResult("😶", "還沒寫字喔！", "#9E9E9E");
+            grade() {
+                if(!this.hasDrawn) {
+                    alert("請先在畫板上練習寫字喔！");
                     return;
                 }
-                const msg = `太棒了！ ${this.phonics[this.currentLetter].p}`;
-                this.showResult("A+", msg, "#FF7043");
+                const info = PHONICS[this.currentLetter];
+                const msg = `Excellent! You wrote the letter ${this.currentLetter} perfectly! ${info.phrase}`;
                 
-                const u = new SpeechSynthesisUtterance(msg);
-                u.lang = "en-US"; window.speechSynthesis.speak(u);
-
-                // 自動跳下一格
-                setTimeout(() => {
-                    let idx = this.abc.indexOf(this.currentLetter);
-                    if (idx < 25) {
-                        this.currentLetter = this.abc[idx + 1];
-                        this.sel.value = this.currentLetter;
-                        this.reset();
-                    }
-                }, 2500);
-            },
-
-            showResult(grade, msg, color) {
-                document.getElementById('grade-text').innerText = grade;
-                document.getElementById('grade-text').style.color = color;
+                document.getElementById('grade-text').innerText = "A+";
                 document.getElementById('feedback-text').innerText = msg;
                 this.overlay.style.display = 'flex';
-            },
 
-            updateProgress() {
-                const box = document.getElementById('progressBox');
-                box.innerHTML = '';
-                const currIdx = this.abc.indexOf(this.currentLetter);
-                this.abc.forEach((l, i) => {
-                    const dot = document.createElement('div');
-                    dot.className = `progress-dot ${i === currIdx ? 'active' : (i < currIdx ? 'done' : '')}`;
-                    dot.innerText = l;
-                    box.appendChild(dot);
-                });
+                const u = new SpeechSynthesisUtterance(msg);
+                u.lang = "en-US"; window.speechSynthesis.speak(u);
             }
         };
 
-        // 核心修正：確保在 DOM 完全載入後才執行初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            App.init();
-        });
+        // 啟動應用
+        window.onload = () => App.init();
     </script>
 </body>
 </html>
