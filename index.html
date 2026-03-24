@@ -5,49 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水豚君森林練習帖</title>
     <style>
+        /* 1. 背景可愛裝飾 */
         body { 
-            background: linear-gradient(180deg, #f0f9f0 0%, #d4edda 100%); 
-            margin: 0; padding: 20px; font-family: sans-serif; text-align: center; min-height: 100vh;
+            background-color: #fdf6e3;
+            background-image: radial-gradient(#d4edda 2px, transparent 2px);
+            background-size: 30px 30px; /* 滿版可愛點點背景 */
+            margin: 0; padding: 20px; font-family: 'Comic Sans MS', sans-serif; text-align: center; min-height: 100vh;
         }
-        h2 { color: #2d5a27; margin-bottom: 10px; }
+
+        h2 { color: #5d4037; text-shadow: 2px 2px white; margin-bottom: 20px; }
+
+        /* 森林小草裝飾 */
+        body::before {
+            content: "🌿 🌸 🍀 🌿"; position: fixed; bottom: 10px; left: 0; width: 100%; 
+            font-size: 24px; opacity: 0.5; letter-spacing: 50px; z-index: -1;
+        }
+
         .ui-box { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         
-        /* 畫板外框 */
         .container {
-            width: 520px; background: white; border: 10px solid #8d6e63;
+            width: 520px; background: white; border: 8px solid #8d6e63;
             border-radius: 40px; margin: 0 auto; position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); touch-action: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); touch-action: none;
         }
-        canvas { display: block; border-radius: 30px; cursor: crosshair; background: #fff; }
+        canvas { display: block; border-radius: 32px; cursor: crosshair; background: #fff; }
 
-        /* 純 CSS 繪製的水豚君 (保證不報錯) */
-        .capy-box {
-            position: absolute; bottom: 10px; right: 20px; width: 100px; height: 60px; pointer-events: none;
+        /* 2. 修正後的水豚君 (純 CSS 繪製，保證不再變醜) */
+        .capy-box { position: absolute; bottom: 15px; right: 25px; width: 90px; height: 60px; pointer-events: none; }
+        .capy-body { 
+            width: 80px; height: 50px; background: #b08968; border-radius: 45% 45% 35% 35%; 
+            position: relative; border-bottom: 3px solid #8d6e63;
         }
-        .capy-body { width: 80px; height: 50px; background: #d7a98c; border-radius: 50% 50% 40% 40%; position: relative; }
-        .capy-ear { width: 10px; height: 10px; background: #b08968; border-radius: 50%; position: absolute; top: 5px; right: 5px; }
-        .capy-eye { width: 4px; height: 4px; background: #333; border-radius: 50%; position: absolute; top: 15px; right: 15px; }
-        .orange { width: 12px; height: 12px; background: #ff9800; border-radius: 50%; position: absolute; top: -10px; left: 30px; }
+        .capy-ear { width: 12px; height: 12px; background: #8d6e63; border-radius: 50%; position: absolute; top: 5px; right: 5px; }
+        .capy-eye { width: 5px; height: 5px; background: #333; border-radius: 50%; position: absolute; top: 18px; right: 15px; }
+        .capy-nose { width: 8px; height: 4px; background: #8d6e63; border-radius: 40%; position: absolute; top: 25px; right: 2px; }
+        .orange { 
+            width: 18px; height: 18px; background: #ff9800; border-radius: 50%; 
+            position: absolute; top: -12px; left: 35px; border: 1px solid #e67e22;
+        }
+        .orange::after { content: ""; position: absolute; top: -4px; left: 8px; width: 2px; height: 5px; background: green; }
 
-        select, button { padding: 12px 20px; border-radius: 25px; border: 2px solid #8d6e63; font-size: 16px; cursor: pointer; }
-        button { background: #ff8a65; color: white; border: none; font-weight: bold; }
-        #clear { background: #e0e0e0; color: #616161; }
+        select, button { padding: 12px 20px; border-radius: 25px; border: 2px solid #8d6e63; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button { background: #ff8a65; color: white; border: none; box-shadow: 0 4px #d84315; }
+        button:active { transform: translateY(4px); box-shadow: none; }
+        #clear { background: #a1887f; color: white; box-shadow: 0 4px #6d4c41; }
 
+        /* 評分彈窗 */
         #grade-win {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); border-radius: 30px;
-            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10;
+            background: rgba(255,255,255,0.95); border-radius: 32px;
+            display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100;
         }
-        #grade-text { font-size: 100px; color: #ff5722; margin: 0; }
+        #grade-text { font-size: 100px; color: #ff5722; margin: 0; animation: bounce 0.5s infinite alternate; }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
 
-    <h2>✨ 水豚君陪你練習 Aa-Zz ✨</h2>
+    <h2>🌿 水豚君陪你練英文 Aa-Zz 🌿</h2>
 
     <div class="ui-box">
         <select id="letterPick"></select>
-        <button id="clear">擦乾淨</button>
+        <button id="clear">重新擦乾淨</button>
         <button id="showScore">交卷評分</button>
     </div>
 
@@ -55,16 +74,19 @@
         <canvas id="paint" width="500" height="380"></canvas>
         <div class="capy-box">
             <div class="orange"></div>
-            <div class="capy-body"><div class="capy-ear"></div><div class="capy-eye"></div></div>
+            <div class="capy-body">
+                <div class="capy-ear"></div>
+                <div class="capy-eye"></div>
+                <div class="capy-nose"></div>
+            </div>
         </div>
         <div id="grade-win">
             <h1 id="grade-text">A+</h1>
-            <p style="font-weight: bold; color: #5d4037;">水豚君覺得你寫得超棒！🍊</p>
+            <p style="font-size: 18px; font-weight: bold; color: #5d4037;">水豚君：寫得太棒了！🍊<br>3秒後自動練習下一個...</p>
         </div>
     </div>
 
     <script>
-        // 使用 DOMContentLoaded 確保 HTML 跑完才執行 JS，解決 "canvas is not defined"
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('paint');
             const ctx = canvas.getContext('2d');
@@ -72,7 +94,7 @@
             const win = document.getElementById('grade-win');
             let drawing = false;
 
-            // 填寫字母選單
+            // 1. 初始化字母選單
             for(let i=65; i<=90; i++) {
                 let char = String.fromCharCode(i);
                 let opt = document.createElement('option');
@@ -83,15 +105,16 @@
             function initCanvas() {
                 win.style.display = 'none';
                 ctx.clearRect(0, 0, 500, 380);
-                // 畫輔助線
-                ctx.setLineDash([5, 5]); ctx.strokeStyle = '#eee'; ctx.lineWidth = 2;
+                // 畫格線
+                ctx.setLineDash([5, 5]); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1;
                 [95, 190, 285].forEach(y => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); });
-                // 畫淺色底字
-                ctx.setLineDash([]); ctx.font = 'bold 260px Arial'; ctx.fillStyle = '#f9f9f9';
+                // 淺色範本字
+                ctx.setLineDash([]); ctx.font = 'bold 260px Arial'; ctx.fillStyle = '#f0f0f0';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText(picker.value + picker.value.toLowerCase(), 250, 190);
             }
 
+            // 2. 繪圖邏輯
             function getPos(e) {
                 const rect = canvas.getBoundingClientRect();
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -103,7 +126,7 @@
             const move = (e) => { 
                 if(!drawing) return; e.preventDefault();
                 const p = getPos(e); ctx.lineTo(p.x, p.y);
-                ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.strokeStyle = '#4a90e2'; ctx.stroke(); 
+                ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.strokeStyle = '#5d4037'; ctx.stroke(); 
             };
             const stop = () => drawing = false;
 
@@ -113,8 +136,23 @@
             canvas.addEventListener('touchend', stop);
 
             document.getElementById('clear').onclick = initCanvas;
-            document.getElementById('showScore').onclick = () => win.style.display = 'flex';
             picker.onchange = initCanvas;
+
+            // 3. 自動跳轉功能
+            document.getElementById('showScore').onclick = () => {
+                win.style.display = 'flex';
+                // 評分顯示 3 秒後自動切換下一個字母
+                setTimeout(() => {
+                    const currentIndex = picker.selectedIndex;
+                    if (currentIndex < picker.options.length - 1) {
+                        picker.selectedIndex = currentIndex + 1;
+                        initCanvas();
+                    } else {
+                        alert("太厲害了！你已經完成所有練習！🍊");
+                        win.style.display = 'none';
+                    }
+                }, 3000);
+            };
 
             initCanvas();
         });
