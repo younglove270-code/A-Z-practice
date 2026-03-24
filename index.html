@@ -3,66 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>水豚君森林教室</title>
+    <title>水豚君發音練習帖</title>
     <style>
-        body { 
-            background-color: #f0f7ef; /* 森林淺綠色背景 */
-            margin: 0; padding: 20px; font-family: sans-serif; text-align: center;
-        }
-
-        /* 練習本的外框：咖啡色質感 */
+        body { background-color: #f0f7ef; margin: 0; padding: 20px; font-family: sans-serif; text-align: center; }
         .container {
             width: 500px; height: 380px; background: white; 
             border: 12px solid #8d6e63; border-radius: 45px;
             margin: 15px auto; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             touch-action: none; overflow: hidden;
         }
-
-        canvas { display: block; position: relative; z-index: 10; cursor: crosshair; }
-
-        /* 靈魂水豚：使用內建 Emoji，保證不閃退、不空白 */
-        .capy-buddy {
-            position: absolute; bottom: 10px; right: 15px;
-            font-size: 100px; z-index: 5; user-select: none;
-        }
-
+        canvas { display: block; position: relative; z-index: 10; }
+        .capy-buddy { position: absolute; bottom: 10px; right: 15px; font-size: 100px; z-index: 5; }
         .ui-box { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; }
-        select, button { 
-            padding: 12px 22px; border-radius: 25px; border: 3px solid #8d6e63; 
-            font-size: 18px; font-weight: bold; cursor: pointer;
-        }
+        button { padding: 12px 22px; border-radius: 25px; border: 3px solid #8d6e63; font-weight: bold; cursor: pointer; }
         .btn-score { background: #ff8a65; color: white; border: none; }
-
-        /* 評分彈窗 */
         #win {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.95); z-index: 100;
             display: none; flex-direction: column; justify-content: center; align-items: center;
         }
-        .win-capy { font-size: 80px; animation: bounce 0.5s infinite alternate; }
+        .win-capy { font-size: 80px; animation: bounce 0.4s infinite alternate; }
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
     </style>
 </head>
 <body>
 
-    <div style="font-size: 40px; margin-bottom: 10px;">🎒 🌳 🍎 🌲</div>
-    <h2 style="color: #5d4037;">水豚君森林教室 Aa-Zz</h2>
+    <h2 style="color: #5d4037;">🔊 水豚君發音練習教室</h2>
 
     <div class="ui-box">
-        <select id="sel"></select>
+        <select id="sel" style="padding:10px; border-radius:20px;"></select>
         <button onclick="init()">重寫</button>
         <button class="btn-score" onclick="goNext()">寫好了！</button>
     </div>
 
     <div class="container">
         <div class="capy-buddy">🦫<span style="position:absolute; top:-15px; left:35px; font-size:30px;">🍊</span></div>
-        
         <canvas id="c" width="500" height="380"></canvas>
-        
         <div id="win">
-            <div class="win-capy">🦫🍊</div>
+            <div class="win-capy">🦫🎉</div>
             <h1 style="font-size: 80px; color: #ff5722; margin: 0;">A+</h1>
-            <p style="font-weight: bold; color: #5d4037;">水豚君：好棒喔！換下一個字母！</p>
+            <p>好棒！正在前往下一個字母...</p>
         </div>
     </div>
 
@@ -71,39 +51,44 @@
         const sel = document.getElementById('sel'), win = document.getElementById('win');
         let drawing = false;
 
-        // 生成 26 個字母
         for(let i=65; i<=90; i++) {
             let char = String.fromCharCode(i);
             let opt = document.createElement('option');
-            opt.value = char; opt.innerHTML = `練習字母 ${char}${char.toLowerCase()}`;
+            opt.value = char; opt.innerHTML = `字母 ${char}${char.toLowerCase()}`;
             sel.appendChild(opt);
+        }
+
+        // --- 語音功能函數 ---
+        function say(text) {
+            const synth = window.speechSynthesis;
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
+            utter.rate = 0.7;
+            synth.speak(utter);
         }
 
         function init() {
             win.style.display = 'none';
             ctx.clearRect(0, 0, 500, 380);
-            // 輔助格線
-            ctx.setLineDash([5, 5]); ctx.strokeStyle = '#f0f0f0';
-            [95, 190, 285].forEach(y => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); });
-            // 底色文字
-            ctx.setLineDash([]); ctx.font = 'bold 260px Arial'; ctx.fillStyle = '#f9f9f9';
+            ctx.font = 'bold 260px Arial'; ctx.fillStyle = '#f9f9f9';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 190);
+            ctx.fillText(sel.value, 250, 190);
+            // 當切換或重寫時，讀出該字母
+            say(sel.value);
         }
 
         function goNext() {
             win.style.display = 'flex';
+            say("Excellent!"); // 交卷時給予讚美語音
             setTimeout(() => {
                 if (sel.selectedIndex < 25) {
                     sel.selectedIndex++;
                     init();
-                } else {
-                    win.innerHTML = "<div class='win-capy'>🦫🎉</div><h1>完工!</h1>";
                 }
-            }, 1200); // 1.2秒跳轉
+            }, 1200); 
         }
 
-        // 繪圖邏輯 (支援電腦與手機)
+        // 繪圖邏輯
         function getPos(e) {
             const r = cvs.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
@@ -114,7 +99,7 @@
         function move(e) {
             if(!drawing) return; e.preventDefault();
             const p = getPos(e); ctx.lineTo(p.x, p.y);
-            ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.strokeStyle = '#5d4037'; ctx.stroke();
+            ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#5d4037'; ctx.stroke();
         }
         
         cvs.addEventListener('mousedown', start); cvs.addEventListener('mousemove', move);
@@ -122,8 +107,6 @@
         cvs.addEventListener('touchstart', start); cvs.addEventListener('touchmove', move);
         cvs.addEventListener('touchend', () => drawing = false);
         sel.onchange = init;
-
-        // 確保視窗載入後再初始化，解決 canvas 未定義問題
         window.onload = init;
     </script>
 </body>
