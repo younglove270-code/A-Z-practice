@@ -5,215 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水豚君森林教室</title>
     <style>
-        body {
-            background-color: #f0f7ef;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 100 100'%3E%3Cg opacity='0.08'%3E%3Ctext x='10' y='30' font-size='12' fill='%232E7D32'%3EABC%3C/text%3E%3Ccircle cx='70' cy='70' r='5' fill='%2381C784'/%3E%3C/g%3E%3C/svg%3E");
-            margin: 0; padding: 20px; font-family: system-ui, Arial, sans-serif; text-align: center;
+        :root {
+            --soft-bg: #F1F8E9; /* 柔和草綠色背景 */
+            --notebook-edge: #A1887F; /* 實體書棕色邊框 */
+            --capy-line: #5D4037; /* 棕色字體 */
+            --chalk-blue: #45AAF2;
         }
 
-        .header-icons { 
-            font-size: 52px; 
-            margin-bottom: 10px; 
-            letter-spacing: 8px;
+        /* 🌍 全局森林系背景：淡雅柔和草綠色 */
+        body { 
+            background: #F8FAF0; /* 淡淡的森林米色 */
+            background-image: 
+                /* 森林小草紋理 */
+                linear-gradient(to top, #A5D6A7 5%, transparent 15%),
+                /* 森林小草圖片背景 */
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3C!-- Q版小草 --%3E%3Cg transform='translate(100, 100)' opacity='0.2'%3E%3Cpath d='M30,50 L30,100' stroke='%23D7A98C' stroke-width='4'/%3E%3Ctext x='35' y='80' font-size='30' fill='%238D6E63'%3EHello!%3C/text%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover; background-position: center;
+            margin: 0; display: flex; flex-direction: column; align-items: center; padding: 15px;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; 
+            color: var(--capy-line);
+            overflow: hidden; 
         }
 
-        .container {
-            width: 500px; 
-            height: 380px; 
-            background: white;
-            border: 14px solid #8d6e63; 
-            border-radius: 40px;
-            margin: 15px auto; 
-            position: relative; 
-            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-            overflow: hidden;
+        .header-icons { font-size: 45px; margin-bottom: 5px; }
+        h2 { color: var(--capy-line); margin: 10px 0; font-size: 26px; }
+
+        /* 練習本容器：富有質感的圓角與棕色邊框 */
+        #box { 
+            position: relative; width: 500px; height: 380px;
+            background: white; border: 12px solid #A1887F; border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden;
+            touch-action: none;
         }
 
         canvas { 
             display: block; 
+            border-radius: 32px; 
             background: transparent; 
-            z-index: 5; 
+            position: relative; z-index: 5; /* 畫布在浮水印之上 */
         }
 
-        /* 可愛精緻版水豚君 */
+        /* 🌟 核心：更萌、實體化的水豚君貼圖 (內嵌Base64圖片，絕對會顯示不出) */
         .capy-sprite {
-            position: absolute; 
-            bottom: 18px; 
-            right: 30px;
-            width: 130px; 
-            height: 102px; 
-            z-index: 2;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 110' width='140' height='110'%3E%3C!--身體--%3E%3Cellipse cx='74' cy='73' rx='46' ry='34' fill='%23D4A17F'/%3E%3C!--頭--%3E%3Cellipse cx='53' cy='46' rx='35' ry='33' fill='%23D4A17F'/%3E%3C!--耳朵--%3E%3Cellipse cx='26' cy='34' rx='12' ry='16' fill='%23C18F6F'/%3E%3Cellipse cx='80' cy='31' rx='13' ry='17' fill='%23C18F6F'/%3E%3C!--眼睛--%3E%3Cellipse cx='41' cy='43' rx='7' ry='9.5' fill='%23222'/%3E%3Cellipse cx='67' cy='42' rx='7' ry='9.5' fill='%23222'/%3E%3Ccircle cx='44' cy='40' r='2.8' fill='%23fff'/%3E%3Ccircle cx='70' cy='39' r='2.8' fill='%23fff'/%3E%3C!--嘴巴--%3E%3Cpath d='M46 58 Q55 63 64 58' fill='none' stroke='%23333' stroke-width='2.5' stroke-linecap='round'/%3E%3C!--鼻子--%3E%3Cellipse cx='55' cy='54' rx='4.2' ry='3' fill='%23333'/%3E%3C!--頭上橘子--%3E%3Ccircle cx='74' cy='18' r='11' fill='%23FF9F1C'/%3E%3Ccircle cx='71' cy='14' r='4' fill='%23FFBB4D'/%3E%3C!--小手--%3E%3Cellipse cx='105' cy='71' rx='12' ry='17' fill='%23D4A17F' transform='rotate(-35 105 71)'/%3E%3C/svg%3E");
+            position: absolute; bottom: 15px; right: 20px;
+            width: 140px; height: 90px;
+            opacity: 0.9; z-index: 10;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZWxsaXBzZSBjeD0iNTAiIGN5PSI1NSIgcng9IjQ1IiByeT0iMzUiIGZpbGw9IiNEO0E5OEMiIHN0cm9rZT0iIzVENDAzNyIgc3Ryb2tlLXdpZHRoPSIyIi8+PGVsbGlwc2UgY3g9IjgwIiBjeT0iNjUiIHJ4PSIyMCIgcnk9IjI1IiBmaWxsPSIjQTY3QzVGIiBzdHJva2U9IiM1RDQwMzciIHN0cm9rZS13aWR0aPSIyIi8+PHJlY3QgeD0iNDAiIHk9IjMwIiB3aWR0aD0iMTUiIGhlaWdodD0iMyIgcng9IjEuNSIgZmlsbD0iIzVENDAzNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTEwIDQ3LjUgMzEuNSkiLz48dGV4dCBxPSI3NSIgeT0iMzAiIGZvbnQtc2l6ZT0iMjAiPuS7qTwvdGV4dD48L3N2Zz4=');
             background-repeat: no-repeat;
             background-size: contain;
+            pointer-events: none;
         }
 
-        .ui { 
-            margin-bottom: 18px; 
-            display: flex; 
-            justify-content: center; 
-            gap: 12px; 
-            flex-wrap: wrap;
+        /* 介面按鈕：更圓潤、焦糖棕色系 */
+        .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 12px; align-items: center; }
+        select, button { 
+            padding: 10px 20px; font-size: 16px; 
+            border-radius: 25px; border: 2px solid #E0E0E0; 
+            cursor: pointer; font-family: inherit;
         }
+        select { background-color: #fff; color: #5D4037; }
+        .score-btn { background: #FFAB91; color: white; border: none; font-weight: bold; }
+        .reset-btn { background: #E6D5C3; color: #5D4037; border: none; font-weight: bold; }
 
-        select, button {
-            padding: 11px 24px; 
-            border-radius: 25px; 
-            border: 3px solid #8d6e63;
-            font-size: 17px; 
-            font-weight: bold; 
-            cursor: pointer;
+        /* 🎉 貼圖風歡呼動畫浮層 */
+        #celebration-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; background: rgba(255, 255, 255, 0.96); 
+            border-radius: 32px; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 100; 
+            animation: fadeIn 0.3s;
         }
-
-        .btn-reset { 
-            background: #e0d8ce; 
-            color: #5d4037; 
+        #grade { 
+            font-size: 110px; font-weight: 900; color: #FF7043; margin: -10px 0; 
+            text-shadow: 3px 3px 0px #FFE0B2;
         }
-        .btn-score { 
-            background: #ff8a65; 
-            color: white; 
-            border: none; 
-        }
-
-        #win {
-            position: absolute; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%;
-            background: rgba(255,255,255,0.93); 
-            z-index: 100;
-            display: none; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-        }
-
-        .cheer-capy {
-            width: 112px; 
-            height: 92px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 110'%3E%3Cellipse cx='74' cy='73' rx='46' ry='34' fill='%23D4A17F'/%3E%3Cellipse cx='53' cy='46' rx='35' ry='33' fill='%23D4A17F'/%3E%3Cellipse cx='26' cy='34' rx='12' ry='16' fill='%23C18F6F'/%3E%3Cellipse cx='80' cy='31' rx='13' ry='17' fill='%23C18F6F'/%3E%3Cellipse cx='41' cy='43' rx='7' ry='9.5' fill='%23222'/%3E%3Cellipse cx='67' cy='42' rx='7' ry='9.5' fill='%23222'/%3E%3Ccircle cx='44' cy='40' r='2.8' fill='%23fff'/%3E%3Ccircle cx='70' cy='39' r='2.8' fill='%23fff'/%3E%3Cpath d='M46 58 Q55 63 64 58' fill='none' stroke='%23333' stroke-width='2.5' stroke-linecap='round'/%3E%3Cellipse cx='55' cy='54' rx='4.2' ry='3' fill='%23333'/%3E%3Ccircle cx='74' cy='18' r='11' fill='%23FF9F1C'/%3E%3C/svg%3E");
-            background-size: contain;
-            animation: cheerJump 0.45s infinite alternate;
-        }
-
-        @keyframes cheerJump {
-            from { transform: translateY(0); }
-            to { transform: translateY(-26px); }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
+
     <div class="header-icons">🎒 🌿 🌲 🍎</div>
-    <h2 style="color: #5d4037; margin: 8px 0 20px;">水豚君森林教室</h2>
+    <h2>✨ 水豚君森林教室 ✨</h2>
 
     <div class="ui">
-        <select id="sel"></select>
-        <button class="btn-reset" onclick="reset()">重寫</button>
-        <button class="btn-score" onclick="showScore()">寫好了！</button>
+        <select id="letterSelect"></select>
+        <button class="reset-btn" id="resetBtn">擦乾淨</button>
+        <button class="score-btn" id="scoreBtn">寫好交卷</button>
     </div>
 
-    <div class="container">
+    <div id="box">
         <div class="capy-sprite"></div>
-        <canvas id="c" width="500" height="380"></canvas>
 
-        <div id="win">
-            <div class="cheer-capy"></div>
-            <div style="font-size: 110px; color: #ff5722; font-weight: 900; margin: 8px 0;">A+</div>
-            <p style="font-weight: bold; color: #5d4037; font-size: 21px;">太棒了！水豚君為你歡呼！</p>
+        <canvas id="c" width="500" height="380"></canvas>
+        
+        <div id="celebration-overlay">
+            <h1 id="grade">A+</h1>
+            <p style="font-size: 20px; font-weight: bold; color: #5D4037;">寫得太漂亮了！水豚君為你歡呼！🍊</p>
         </div>
     </div>
 
     <script>
-        const cvs = document.getElementById('c');
-        const ctx = cvs.getContext('2d');
-        const sel = document.getElementById('sel');
-        const win = document.getElementById('win');
+        (function() {
+            var cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
+            var sel = document.getElementById('letterSelect'), overlay = document.getElementById('celebration-overlay');
+            var drawing = false;
 
-        // 生成 Aa ~ Zz
-        for (let i = 65; i <= 90; i++) {
-            let char = String.fromCharCode(i);
-            let opt = document.createElement('option');
-            opt.value = char;
-            opt.textContent = `練習字母 ${char}${char.toLowerCase()}`;
-            sel.appendChild(opt);
-        }
-
-        function reset() {
-            win.style.display = 'none';
-            ctx.clearRect(0, 0, 500, 380);
-
-            // 輔助線
-            ctx.setLineDash([6, 4]);
-            ctx.strokeStyle = '#f0e9e0';
-            [95, 190, 285].forEach(y => {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(500, y);
-                ctx.stroke();
+            // 初始化字母選單
+            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            alphabet.forEach(function(l) {
+                var opt = document.createElement('option'); opt.value = l; opt.innerHTML = "練習字母 " + l + l.toLowerCase(); sel.appendChild(opt);
             });
 
-            // 淡灰色範例字母
-            ctx.font = 'bold 245px Arial';
-            ctx.fillStyle = '#f5f0e8';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 192);
-        }
+            function initBoard() {
+                overlay.style.display = 'none';
+                ctx.clearRect(0, 0, 500, 380);
+                
+                // 畫輔助線
+                ctx.setLineDash([8, 8]); ctx.lineWidth = 1.5; ctx.strokeStyle = "#E6D5C3";
+                [90, 144, 198, 252].forEach(function(y) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); });
+                ctx.setLineDash([]);
+                
+                // 畫字母底字
+                ctx.font = 'bold 240px Arial'; ctx.fillStyle = '#F5F5F5'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 190);
+            }
 
-        function showScore() {
-            win.style.display = 'flex';
+            // --- 寫字功能 ---
+            function getPos(e) {
+                var r = cvs.getBoundingClientRect();
+                var cx = e.clientX || (e.touches && e.touches[0].clientX);
+                var cy = e.clientY || (e.touches && e.touches[0].clientY);
+                return { x: cx - r.left, y: cy - r.top };
+            }
 
-            setTimeout(() => {
-                if (sel.selectedIndex < 25) {
-                    sel.selectedIndex++;
-                    reset();
-                } else {
-                    win.innerHTML = `
-                        <div class="cheer-capy"></div>
-                        <h1 style="color:#5d4037; margin:15px 0;">全部練完囉！🎉</h1>
-                    `;
-                }
-            }, 1300);
-        }
+            function start(e) { drawing = true; ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y); }
+            function move(e) {
+                if (!drawing) return; e.preventDefault();
+                var p = getPos(e);
+                ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#4FC3F7';
+                ctx.lineTo(p.x, p.y); ctx.stroke();
+            }
+            function stop() { drawing = false; }
 
-        let drawing = false;
+            // 事件監聽與評分功能
+            document.getElementById('scoreBtn').onclick = () => { overlay.style.display = 'flex'; setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; initBoard(); } }, 2000); };
+            document.getElementById('resetBtn').onclick = initBoard;
+            sel.onchange = initBoard;
+            
+            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
+            canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', stop);
 
-        function getPos(e) {
-            const rect = cvs.getBoundingClientRect();
-            return {
-                x: (e.touches ? e.touches[0].clientX : e.clientX) - rect.left,
-                y: (e.touches ? e.touches[0].clientY : e.clientY) - rect.top
-            };
-        }
-
-        function start(e) {
-            drawing = true;
-            ctx.beginPath();
-            const p = getPos(e);
-            ctx.moveTo(p.x, p.y);
-        }
-
-        function move(e) {
-            if (!drawing) return;
-            e.preventDefault();
-            const p = getPos(e);
-            ctx.lineTo(p.x, p.y);
-            ctx.lineWidth = 16;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#5d4037';
-            ctx.stroke();
-        }
-
-        cvs.addEventListener('mousedown', start);
-        cvs.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => drawing = false);
-
-        cvs.addEventListener('touchstart', start);
-        cvs.addEventListener('touchmove', move);
-        cvs.addEventListener('touchend', () => drawing = false);
-
-        sel.onchange = reset;
-        reset();
+            initBoard(); // 啟動
+        })();
     </script>
 </body>
 </html>
