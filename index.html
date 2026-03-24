@@ -5,53 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水豚君英文練習 Aa-Zz</title>
     <style>
-        :root { --capy-brown: #8D6E63; --capy-light: #D7CCC8; --bg-color: #FDF5E6; }
-        body { background: var(--bg-color); text-align: center; font-family: sans-serif; margin: 0; padding: 15px; color: #5D4037; overflow: hidden; }
-        h2 { color: var(--capy-brown); margin: 10px 0; }
+        :root { --capy-brown: #9E7E6B; --capy-dark: #5D4037; --bg-color: #FDF5E6; }
+        body { background: var(--bg-color); text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; color: var(--capy-dark); overflow: hidden; }
         
         #box { 
             width: 480px; height: 360px; background: white; 
-            border: 8px solid var(--capy-light); border-radius: 30px; 
+            border: 8px solid #E6D5C3; border-radius: 30px; 
             margin: 10px auto; position: relative; touch-action: none;
-            box-shadow: 0 6px 20px rgba(141, 110, 99, 0.2);
+            box-shadow: 0 8px 25px rgba(158, 126, 107, 0.2);
         }
 
         canvas { display: block; border-radius: 22px; position: relative; z-index: 5; background: transparent; }
 
-        /* 內嵌水豚底圖 */
-        #capy-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; opacity: 0.1; z-index: 1; pointer-events: none; }
+        /* 水豚浮水印背景 */
+        #capy-bg { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 250px; opacity: 0.08; z-index: 1; pointer-events: none; }
 
         .ui { margin-bottom: 15px; display: flex; justify-content: center; gap: 12px; }
-        select, button { padding: 12px 18px; font-size: 16px; border-radius: 20px; border: 2px solid var(--capy-light); cursor: pointer; font-family: inherit; }
-        .score-btn { background: var(--capy-brown); color: white; border: none; font-weight: bold; }
+        select, button { padding: 12px 20px; font-size: 16px; border-radius: 25px; border: 2px solid #D7CCC8; cursor: pointer; transition: 0.2s; }
+        .score-btn { background: #FFAB91; color: white; border: none; font-weight: bold; }
+        .score-btn:hover { background: #FF8A65; }
 
-        /* 歡呼動畫層 */
+        /* 🎉 真正的水豚歡呼動畫 */
         #overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            display: none; background: rgba(255, 255, 255, 0.9); 
+            display: none; background: rgba(255, 255, 255, 0.95); 
             border-radius: 22px; flex-direction: column; justify-content: center; align-items: center; z-index: 100; 
         }
-        .cheer-img { width: 120px; animation: bounce 0.5s infinite alternate; }
-        #grade { font-size: 80px; font-weight: bold; color: #FF7043; margin: 0; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+        .capy-animation { width: 180px; animation: capy-jump 0.6s infinite alternate cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #grade { font-size: 90px; font-weight: 900; color: #FF7043; margin: -10px 0; text-shadow: 2px 2px 0 #FFF, 4px 4px 0 #FFAB91; }
         
+        @keyframes capy-jump { from { transform: translateY(0) scale(1); } to { transform: translateY(-30px) scale(1.05); } }
         @media (max-width: 500px) { #box { width: 95vw; height: 71vw; } }
     </style>
 </head>
 <body>
-    <h2>✨ 水豚君陪你寫英文 ✨</h2>
+    <h2 style="font-size: 24px; letter-spacing: 2px;">🐾 水豚君陪你寫英文 🐾</h2>
     <div class="ui">
         <select id="sel"></select>
-        <button id="resetBtn">重寫</button>
-        <button class="score-btn" id="scoreBtn">看分數</button>
+        <button id="resetBtn" style="background: #FFF;">重寫</button>
+        <button class="score-btn" id="scoreBtn">看評分</button>
     </div>
     <div id="box">
-        <svg id="capy-bg" viewBox="0 0 100 100"><path d="M85,55 C95,55,95,75,85,75 L80,75 L80,80 C80,85,70,85,70,80 L70,75 L30,75 L30,80 C30,85,20,85,20,80 L20,75 L15,75 C5,75,5,55,15,55 L20,55 L20,50 C20,30,40,20,60,20 C75,20,80,30,80,45 L80,55 L85,55 Z" fill="#8D6E63"/></svg>
+        <svg id="capy-bg" viewBox="0 0 200 150">
+            <ellipse cx="100" cy="85" rx="70" ry="50" fill="#9E7E6B" /> <path d="M140,40 Q175,40 175,80 L175,100 Q170,120 140,120 Z" fill="#9E7E6B" /> <circle cx="155" cy="70" r="4" fill="#3E2723" /> <path d="M170,95 Q175,95 175,100" stroke="#3E2723" fill="none" stroke-width="2" /> <ellipse cx="130" cy="45" rx="8" ry="12" fill="#D7CCC8" opacity="0.4" /> </svg>
+
         <canvas id="c" width="480" height="360"></canvas>
+
         <div id="overlay">
-            <svg class="cheer-img" viewBox="0 0 100 100"><path d="M80,50 C90,50,90,70,80,70 L75,70 L75,75 C75,80,65,80,65,75 L65,70 L25,70 L25,75 C25,80,15,80,15,75 L15,70 L10,70 C0,70,0,50,10,50 L15,50 L15,45 C15,25,35,15,55,15 C70,15,75,25,75,40 L75,50 L80,50 Z" fill="#8D6E63"/><text x="25" y="60" font-size="20">🎉</text></svg>
+            <svg class="capy-animation" viewBox="0 0 200 200">
+                <circle cx="100" cy="40" r="12" fill="#FFA726" /> <rect x="98" y="25" width="4" height="6" fill="#4CAF50" /> <ellipse cx="100" cy="110" rx="70" ry="50" fill="#8D6E63" /> <path d="M140,65 Q175,65 175,105 L175,125 Q170,145 140,145 Z" fill="#8D6E63" /> <line x1="150" y1="90" x2="165" y2="90" stroke="white" stroke-width="3" stroke-linecap="round" /> <text x="30" y="80" font-size="40">✨</text>
+                <text x="140" y="50" font-size="40">✨</text>
+            </svg>
             <div id="grade">A+</div>
-            <p>水豚君為你歡呼！</p>
+            <p style="font-weight: bold; color: #8D6E63;">水豚君：寫得太棒了！</p>
         </div>
     </div>
 
@@ -70,40 +76,18 @@
         function init() {
             overlay.style.display = 'none';
             ctx.clearRect(0, 0, 480, 360);
-            ctx.setLineDash([5, 5]); ctx.lineWidth = 1; ctx.strokeStyle = "#D7CCC8";
+            ctx.setLineDash([8, 8]); ctx.lineWidth = 2; ctx.strokeStyle = "#E0E0E0";
             [90, 144, 198, 252].forEach(y => { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(480,y); ctx.stroke(); });
             ctx.setLineDash([]);
-            ctx.font = 'bold 220px Arial'; ctx.fillStyle = '#F0F0F0'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.font = 'bold 230px Arial'; ctx.fillStyle = '#F5F5F5'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
         }
 
         const getPos = e => {
             const r = cvs.getBoundingClientRect();
-            const x = (e.clientX || e.touches[0].clientX) - r.left;
-            const y = (e.clientY || e.touches[0].clientY) - r.top;
-            return {x, y};
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - r.left, y: clientY - r.top };
         };
 
-        const start = e => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
-        const move = e => {
-            if(!drawing) return;
-            const p = getPos(e);
-            ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#45AAF2';
-            ctx.lineTo(p.x, p.y); ctx.stroke();
-        };
-
-        document.getElementById('scoreBtn').onclick = () => {
-            overlay.style.display = 'flex';
-            setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; init(); } }, 2000);
-        };
-
-        cvs.addEventListener('mousedown', start); cvs.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => drawing = false);
-        cvs.addEventListener('touchstart', e => { e.preventDefault(); start(e); });
-        cvs.addEventListener('touchmove', e => { e.preventDefault(); move(e); });
-        document.getElementById('resetBtn').onclick = init;
-        sel.onchange = init;
-        init();
-    </script>
-</body>
-</html>
+        const start = e
