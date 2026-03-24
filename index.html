@@ -3,171 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>水豚君可愛練習本</title>
+    <title>水豚君的英文練習帖</title>
     <style>
-        /* 全局森林風格背景 */
-        body { 
-            background: #E8F5E9; /* 森林淺綠 */
-            background-image: url('https://www.transparenttextures.com/patterns/little-knitted.png');
-            margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px;
-            font-family: "Microsoft JhengHei", sans-serif;
+        body {
+            margin: 0;
+            padding: 15px 10px 30px;
+            background: #FFF9F0;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            text-align: center;
+            color: #5D4037;
+            background-image: 
+                radial-gradient(circle, #E6D5C3 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        h1 {
+            font-size: 26px;
+            margin: 10px 0 20px;
+            color: #5D4037;
+        }
+        .controls {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        select, button {
+            padding: 10px 18px;
+            font-size: 16px;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+        }
+        select {
+            background: #F8F1E9;
+            border: 2px solid #E6D5C3;
+        }
+        .reset-btn {
+            background: #E6D5C3;
+            color: #5D4037;
+            font-weight: 600;
+        }
+        .score-btn {
+            background: #FF9F80;
+            color: white;
+            font-weight: 700;
         }
 
-        /* 標題裝飾 */
-        .title-container {
-            background: #FFF9C4; padding: 10px 40px; border-radius: 50px;
-            border: 4px solid #FBC02D; margin-bottom: 20px; box-shadow: 0 4px 0 #F9A825;
+        #box {
+            width: 480px;
+            max-width: 95vw;
+            height: 360px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 10px 30px rgba(166,124,95,0.18);
+            position: relative;
+            overflow: hidden;
         }
-        .title { color: #5D4037; font-size: 26px; font-weight: bold; margin: 0; }
-
-        /* 練習本主體 */
-        #notebook { 
-            position: relative; width: 550px; height: 420px;
-            background: white; border: 15px solid #A1887F; border-radius: 40px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15); overflow: hidden;
-        }
-
-        /* 內容區背景：Q版小朋友學英文插畫 (用穩定連結) */
-        .decoration-bg {
-            position: absolute; width: 100%; height: 100%;
-            background-image: url('https://img.freepik.com/free-vector/hand-drawn-child-learning-concept_23-2148780519.jpg?size=626&ext=jpg');
-            background-size: cover; background-position: center;
-            opacity: 0.15; z-index: 0; pointer-events: none;
+        canvas {
+            display: block;
+            border-radius: 32px;
         }
 
-        /* 字母導引字 */
-        .letter-guide { 
-            position: absolute; width: 100%; height: 100%; 
-            display: flex; justify-content: center; align-items: center;
-            font-size: 260px; font-weight: 900; color: rgba(0,0,0,0.05); 
-            z-index: 1; pointer-events: none;
+        /* 小水豚裝飾 */
+        .corner-capy {
+            position: absolute;
+            bottom: 20px;
+            right: 25px;
+            width: 70px;
+            height: 50px;
+            opacity: 0.85;
+            z-index: 10;
         }
 
-        /* 實體水豚貼圖 */
+        /* 評分遮罩 */
+        #overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.96);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 32px;
+        }
+        .capy-stickers {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
         .capy-sticker {
-            position: absolute; bottom: 10px; right: 20px;
-            width: 140px; z-index: 5; pointer-events: none;
+            width: 120px;
+            height: 120px;
+        }
+        .happy { animation: jump 0.8s infinite alternate ease-in-out; }
+        #grade {
+            font-size: 110px;
+            font-weight: 900;
+            margin: 10px 0 8px;
+            line-height: 1;
+        }
+        #feedback {
+            font-size: 23px;
+            font-weight: bold;
         }
 
-        canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
-
-        /* 控制區 */
-        .controls { margin-top: 20px; display: flex; gap: 15px; }
-        
-        button, select {
-            padding: 12px 25px; border-radius: 30px; border: none;
-            font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 5px 0 #795548; background: #8D6E63; color: white;
+        @keyframes jump {
+            from { transform: translateY(0) rotate(-8deg); }
+            to { transform: translateY(-35px) rotate(8deg); }
         }
-        button:active { transform: translateY(3px); box-shadow: 0 2px 0 #795548; }
-        .btn-score { background: #FF7043; box-shadow: 0 5px 0 #E64A19; }
-
-        /* 慶祝畫面 */
-        #celebration {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95); z-index: 100;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .grade-star { font-size: 120px; color: #FFD54F; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
-
-    <div class="title-container">
-        <h1 class="title">🐾 水豚君與小朋友的練習時間 🐾</h1>
+    <h1>🌟 水豚君的英文練習帖 🌟</h1>
+    
+    <div class="controls">
+        <select id="sel"></select>
+        <button class="reset-btn" id="resetBtn">擦乾淨</button>
+        <button class="score-btn" id="scoreBtn">交卷評分</button>
     </div>
 
-    <div id="notebook">
-        <div class="decoration-bg"></div>
-        <div id="guide" class="letter-guide">Aa</div>
+    <div id="box">
+        <canvas id="c" width="480" height="360"></canvas>
         
-        <img class="capy-sticker" src="https://img.icons8.com/bubbles/200/capybara.png" alt="capy">
+        <!-- 角落小水豚裝飾 -->
+        <svg class="corner-capy" viewBox="0 0 100 70" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="55" cy="45" rx="38" ry="25" fill="#D7A98C" stroke="#5D4037" stroke-width="3"/>
+            <ellipse cx="78" cy="48" rx="14" ry="18" fill="#A67C5F" stroke="#5D4037" stroke-width="3"/>
+            <circle cx="68" cy="38" r="4" fill="#5D4037"/>
+            <circle cx="48" cy="38" r="4" fill="#5D4037"/>
+        </svg>
 
-        <canvas id="canvas" width="550" height="420"></canvas>
-
-        <div id="celebration">
-            <div class="grade-star" id="gradeIcon">A+</div>
-            <h2 style="color: #5D4037;">寫得太棒了！</h2>
-            <p style="font-size: 20px;">水豚君給你一顆橘子 🍊</p>
-            <button onclick="resetBoard()">繼續挑戰下一個</button>
+        <!-- 評分結果遮罩 -->
+        <div id="overlay">
+            <div class="capy-stickers" id="stickers"></div>
+            <div id="grade">A+</div>
+            <div id="feedback">太厲害了！水豚君為你歡呼～</div>
+            <p style="margin-top:25px; color:#999; font-size:15px;">點擊任意處繼續下一題</p>
         </div>
     </div>
 
-    <div class="controls">
-        <select id="letterSelect" onchange="updateLetter()"></select>
-        <button onclick="resetBoard()" style="background: #A1887F;">重寫</button>
-        <button class="btn-score" onclick="getScore()">交卷評分</button>
-    </div>
-
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const select = document.getElementById('letterSelect');
-        const guide = document.getElementById('guide');
-        const overlay = document.getElementById('celebration');
-        let drawing = false;
+        const cvs = document.getElementById('c');
+        const ctx = cvs.getContext('2d');
+        const sel = document.getElementById('sel');
+        const overlay = document.getElementById('overlay');
+        const gradeEl = document.getElementById('grade');
+        const feedbackEl = document.getElementById('feedback');
+        const stickersEl = document.getElementById('stickers');
 
-        // 初始化選單
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        letters.forEach(l => {
-            let opt = document.createElement('option');
-            opt.value = l; opt.textContent = `練習 ${l}${l.toLowerCase()}`;
-            select.appendChild(opt);
+        let drawing = false;
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+        alphabet.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l;
+            opt.textContent = `字母 ${l}${l.toLowerCase()}`;
+            sel.appendChild(opt);
         });
 
-        function updateLetter() {
-            guide.textContent = select.value + select.value.toLowerCase();
-            resetBoard();
-        }
-
-        function resetBoard() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function reset() {
             overlay.style.display = 'none';
+            ctx.clearRect(0, 0, 480, 360);
+
+            // 四線格
+            ctx.setLineDash([8, 8]);
+            ctx.lineWidth = 1.5;
+            [90, 144, 198, 252].forEach((y, i) => {
+                ctx.strokeStyle = (i === 2) ? "#A3E635" : "#E6D5C3";
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(480, y); ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // 底字
+            ctx.font = 'bold 240px Arial';
+            ctx.fillStyle = '#F0E8E0';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
         }
 
-        function getScore() {
-            const data = ctx.getImageData(0,0,550,420).data;
-            let drawCount = 0;
-            for(let i=3; i<data.length; i+=4) if(data[i]>0) drawCount++;
-            
-            document.getElementById('gradeIcon').textContent = drawCount > 800 ? "A+" : "加油";
+        function getPos(e) {
+            const r = cvs.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - r.left;
+            const y = (e.clientY || e.touches[0].clientY) - r.top;
+            return { x, y };
+        }
+
+        function start(e) { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
+        function move(e) {
+            if (!drawing) return;
+            const p = getPos(e);
+            ctx.lineWidth = 18;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#4A9FFF';
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        }
+        function stop() { drawing = false; }
+
+        // 建立水豚 SVG
+        function createCapy(happy = true) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.classList.add('capy-sticker');
+            if (happy) svg.classList.add('happy');
+            svg.setAttribute("viewBox", "0 0 130 130");
+            svg.innerHTML = happy ? `
+                <ellipse cx="65" cy="75" rx="52" ry="42" fill="#D7A98C" stroke="#5D4037" stroke-width="5"/>
+                <ellipse cx="95" cy="80" rx="23" ry="28" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <ellipse cx="35" cy="72" rx="20" ry="25" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <rect x="42" y="52" width="22" height="5" rx="2.5" fill="#5D4037" transform="rotate(-25 48 54)"/>
+                <text x="88" y="42" font-size="32">✨</text>
+            ` : `
+                <ellipse cx="65" cy="75" rx="52" ry="42" fill="#D7A98C" stroke="#5D4037" stroke-width="5"/>
+                <ellipse cx="95" cy="80" rx="23" ry="28" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <ellipse cx="35" cy="72" rx="20" ry="25" fill="#A67C5F" stroke="#5D4037" stroke-width="4"/>
+                <rect x="42" y="52" width="22" height="5" rx="2.5" fill="#5D4037" transform="rotate(-45 48 54)"/>
+                <text x="82" y="48" font-size="38">😢</text>
+            `;
+            return svg;
+        }
+
+        function showResult(rank) {
+            stickersEl.innerHTML = '';
+            gradeEl.textContent = rank;
+
+            if (rank === "A+" || rank === "A") {
+                stickersEl.append(createCapy(true));
+                stickersEl.append(createCapy(true));
+                feedbackEl.textContent = "太厲害了！水豚君為你歡呼～ 🥳";
+                feedbackEl.style.color = "#FF7043";
+            } else if (rank === "B+" || rank === "B") {
+                stickersEl.append(createCapy(true));
+                feedbackEl.textContent = "很棒喔！繼續加油～ 💪";
+                feedbackEl.style.color = "#FFB300";
+            } else {
+                stickersEl.append(createCapy(false));
+                feedbackEl.textContent = "沒關係…下次再努力喔～ 😢";
+                feedbackEl.style.color = "#78909C";
+            }
+
             overlay.style.display = 'flex';
         }
 
-        // 觸控與滑鼠事件
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const cx = e.clientX || (e.touches && e.touches[0].clientX);
-            const cy = e.clientY || (e.touches && e.touches[0].clientY);
-            return { x: cx - rect.left, y: cy - rect.top };
+        function score() {
+            const w = 480, h = 360;
+            const temp = document.createElement('canvas');
+            temp.width = w; temp.height = h;
+            const tctx = temp.getContext('2d');
+
+            tctx.font = 'bold 240px Arial';
+            tctx.textAlign = 'center';
+            tctx.textBaseline = 'middle';
+            tctx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
+
+            const std = tctx.getImageData(0,0,w,h).data;
+            const cur = ctx.getImageData(0,0,w,h).data;
+
+            let match = 0, total = 0, miss = 0;
+            for (let i = 3; i < std.length; i += 4) {
+                if (std[i] > 50) {
+                    total++;
+                    if (cur[i] > 180) match++;
+                } else if (cur[i] > 180) miss++;
+            }
+
+            const final = total > 0 ? (match / total) * 100 - miss * 1.8 : 0;
+            let rank = final > 88 ? "A+" :
+                       final > 75 ? "A" :
+                       final > 55 ? "B+" :
+                       final > 35 ? "B" : "C+";
+
+            showResult(rank);
         }
 
-        function start(e) {
-            drawing = true;
-            ctx.beginPath();
-            const p = getPos(e);
-            ctx.moveTo(p.x, p.y);
-        }
+        // 點擊遮罩任意處關閉並下一題
+        overlay.addEventListener('click', () => {
+            if (sel.selectedIndex < sel.options.length - 1) {
+                sel.selectedIndex++;
+                reset();
+            } else {
+                alert("🎉 恭喜完成所有字母練習！");
+                reset();
+            }
+        });
 
-        function move(e) {
-            if(!drawing) return;
-            if(e.touches) e.preventDefault();
-            const p = getPos(e);
-            ctx.lineTo(p.x, p.y);
-            ctx.lineWidth = 14;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#42A5F5'; // 亮藍色
-            ctx.stroke();
-        }
+        // 事件綁定
+        cvs.addEventListener('mousedown', start);
+        cvs.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', stop);
+        cvs.addEventListener('touchstart', e => {e.preventDefault(); start(e);});
+        cvs.addEventListener('touchmove', e => {e.preventDefault(); move(e);});
+        cvs.addEventListener('touchend', stop);
 
-        canvas.addEventListener('mousedown', start);
-        canvas.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => drawing = false);
-        canvas.addEventListener('touchstart', start, {passive: false});
-        canvas.addEventListener('touchmove', move, {passive: false});
-        canvas.addEventListener('touchend', () => drawing = false);
+        document.getElementById('resetBtn').onclick = reset;
+        document.getElementById('scoreBtn').onclick = score;
+        sel.onchange = reset;
 
-        updateLetter();
+        reset(); // 啟動
     </script>
 </body>
 </html>
