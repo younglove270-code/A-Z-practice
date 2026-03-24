@@ -8,9 +8,9 @@
         :root { --main-brown: #5D4037; --bg-green: #F1F8E9; }
         body { background-color: var(--bg-green); font-family: sans-serif; text-align: center; margin: 0; padding: 20px; color: var(--main-brown); }
         
-        .ui-box { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .ui-box { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; }
         
-        /* 練習本容器 */
+        /* 練習本容器：延續你喜歡的視覺感 */
         .notebook {
             position: relative; width: 500px; height: 380px; 
             background: white; border: 12px solid #A1887F; border-radius: 40px;
@@ -20,7 +20,7 @@
 
         canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
 
-        /* 正宗水豚君插圖 */
+        /* 水豚君：放在右下角陪你練習 */
         .capy-img {
             position: absolute; bottom: 10px; right: 15px;
             width: 140px; z-index: 5; pointer-events: none;
@@ -31,9 +31,8 @@
             border: 2px solid #A1887F; background: white; font-weight: bold; cursor: pointer;
         }
         .btn-score { background: #FF8A65; color: white; border: none; box-shadow: 0 4px #D84315; }
-        .btn-score:active { transform: translateY(2px); box-shadow: 0 1px #D84315; }
 
-        /* 評分與發音提示 */
+        /* 評分彈窗 */
         #overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.92); z-index: 100;
@@ -44,13 +43,13 @@
 </head>
 <body>
 
-    <h2 style="margin-top: 0;">🍃 水豚君陪你練英文 Aa-Zz 🌿</h2>
+    <div style="font-size: 40px; margin-bottom: 5px;">🎒 🍎 🌿 🌲</div>
+    <h2 style="margin-top: 0;">水豚君森林教室 Aa-Zz</h2>
 
     <div class="ui-box">
         <select id="letterSelect"></select>
-        <button onclick="playLetterSound()">🔊 聽發音</button>
-        <button onclick="resetCanvas()">重寫</button>
-        <button class="btn-score" onclick="submitWork()">交卷評分</button>
+        <button onclick="resetCanvas()">擦乾淨</button>
+        <button class="btn-score" onclick="submitWork()">寫好了交卷</button>
     </div>
 
     <div class="notebook">
@@ -67,9 +66,10 @@
     <script>
         let canvas, ctx, sel, overlay, gradeText, feedback;
         let isDrawing = false;
-        let hasPainted = false; // 用於簡單評分機制
+        let hasPainted = false; 
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // 確保網頁完全載入後才初始化，防止 canvas is not defined
+        window.onload = function() {
             canvas = document.getElementById('paintCanvas');
             ctx = canvas.getContext('2d');
             sel = document.getElementById('letterSelect');
@@ -77,39 +77,29 @@
             gradeText = document.getElementById('gradeText');
             feedback = document.getElementById('feedback');
 
-            // 1. 初始化 A-Z 大小寫選項
+            // 產生 A-Z 選單
             for(let i=65; i<=90; i++) {
                 let U = String.fromCharCode(i);
-                let L = U.toLowerCase();
                 let opt = document.createElement('option');
                 opt.value = U;
-                opt.innerHTML = `練習字母 ${U} ${L}`;
+                opt.innerHTML = `練習字母 ${U}${U.toLowerCase()}`;
                 sel.appendChild(opt);
             }
 
-            // 2. 綁定繪圖事件 (支援滑鼠與觸控)
-            const start = (e) => { isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
-            const move = (e) => { 
-                if(!isDrawing) return; 
-                e.preventDefault();
-                const p = getPos(e);
-                ctx.lineTo(p.x, p.y);
-                ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#5D4037';
-                ctx.stroke();
-                hasPainted = true;
-            };
-            const stop = () => { isDrawing = false; };
-
-            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
-            canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', move); canvas.addEventListener('touchend', stop);
+            // 繪圖監聽
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', drawing);
+            window.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('touchmove', drawing);
+            canvas.addEventListener('touchend', stopDraw);
 
             sel.onchange = resetCanvas;
             resetCanvas();
-        });
+        };
 
-        // 3. 純字母發音功能
-        function playLetterSound() {
-            const utter = new SpeechSynthesisUtterance(sel.value); // 只讀出字母本身
+        function playSound(text) {
+            const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'en-US';
             utter.rate = 0.7;
             window.speechSynthesis.speak(utter);
@@ -120,37 +110,29 @@
             hasPainted = false;
             ctx.clearRect(0, 0, 500, 380);
             
-            // 繪製大小寫範本底字
+            // 繪製大小寫底字 Aa, Bb...
             ctx.font = 'bold 220px Arial';
             ctx.fillStyle = '#F5F5F5';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 190);
             
-            // 切換字母時自動讀一次發音
-            playLetterSound();
+            // 只讀字母發音
+            playSound(sel.value);
         }
 
-        // 4. 基礎評分機制
         function submitWork() {
             overlay.style.display = 'flex';
-            
             if (!hasPainted) {
-                // 如果完全沒畫
                 gradeText.innerText = "再加油";
                 gradeText.style.color = "#9E9E9E";
-                feedback.innerText = "水豚君：你還沒開始寫喔！";
-                const utter = new SpeechSynthesisUtterance("Please try writing");
-                window.speechSynthesis.speak(utter);
+                feedback.innerText = "你還沒開始動筆喔！";
+                playSound("Please try again");
             } else {
-                // 有塗畫就給 A+ (鼓勵性質)
                 gradeText.innerText = "A+";
                 gradeText.style.color = "#FF5722";
-                feedback.innerText = "水豚君：寫得太棒了！送你一顆橘子🍊";
-                const utter = new SpeechSynthesisUtterance("Excellent! " + sel.value);
-                window.speechSynthesis.speak(utter);
-                
-                // 2秒後自動換下一個
+                feedback.innerText = "水豚君：太棒了！換下一個字母！";
+                playSound("Excellent! " + sel.value);
                 setTimeout(() => {
                     if (sel.selectedIndex < 25) {
                         sel.selectedIndex++;
@@ -166,6 +148,17 @@
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
             return {x, y};
         }
+        function startDraw(e) { isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
+        function drawing(e) {
+            if(!isDrawing) return;
+            e.preventDefault();
+            const p = getPos(e);
+            ctx.lineTo(p.x, p.y);
+            ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#5D4037';
+            ctx.stroke();
+            hasPainted = true;
+        }
+        function stopDraw() { isDrawing = false; }
     </script>
 </body>
 </html>
