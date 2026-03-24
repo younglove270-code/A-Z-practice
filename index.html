@@ -5,112 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>水豚君可愛練習本</title>
     <style>
-        :root {
-            --capy-brown: #9E7B5C;
-            --capy-dark: #6D4C41;
-            --grass-green: #D4EDDA;
-            --sky-blue: #E3F2FD;
-        }
-
+        /* 全局森林風格背景 */
         body { 
-            background: linear-gradient(180deg, var(--sky-blue) 0%, var(--grass-green) 100%);
-            height: 100vh; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-family: "Microsoft JhengHei", cursive, sans-serif;
+            background: #E8F5E9; /* 森林淺綠 */
+            background-image: url('https://www.transparenttextures.com/patterns/little-knitted.png');
+            margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px;
+            font-family: "Microsoft JhengHei", sans-serif;
         }
 
-        .title { 
-            font-size: 32px; color: #5D4037; font-weight: bold; margin-bottom: 15px;
-            text-shadow: 2px 2px white; letter-spacing: 2px;
+        /* 標題裝飾 */
+        .title-container {
+            background: #FFF9C4; padding: 10px 40px; border-radius: 50px;
+            border: 4px solid #FBC02D; margin-bottom: 20px; box-shadow: 0 4px 0 #F9A825;
+        }
+        .title { color: #5D4037; font-size: 26px; font-weight: bold; margin: 0; }
+
+        /* 練習本主體 */
+        #notebook { 
+            position: relative; width: 550px; height: 420px;
+            background: white; border: 15px solid #A1887F; border-radius: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15); overflow: hidden;
         }
 
-        /* 繪圖畫板容器 */
-        #container { 
-            position: relative; width: 600px; height: 450px;
-            background: white; border: 15px solid #8D6E63; border-radius: 50px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden;
-        }
-
-        /* 背景裝飾：森林小草 */
-        .decoration {
-            position: absolute; bottom: 0; width: 100%; height: 50px;
-            background-image: radial-gradient(circle at 10px 10px, #A5D6A7 2px, transparent 0);
-            background-size: 30px 30px; opacity: 0.5; pointer-events: none;
+        /* 內容區背景：Q版小朋友學英文插畫 (用穩定連結) */
+        .decoration-bg {
+            position: absolute; width: 100%; height: 100%;
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-child-learning-concept_23-2148780519.jpg?size=626&ext=jpg');
+            background-size: cover; background-position: center;
+            opacity: 0.15; z-index: 0; pointer-events: none;
         }
 
         /* 字母導引字 */
         .letter-guide { 
             position: absolute; width: 100%; height: 100%; 
             display: flex; justify-content: center; align-items: center;
-            font-size: 280px; font-weight: 900; color: #F5F5F5; 
-            z-index: 1; user-select: none; pointer-events: none;
+            font-size: 260px; font-weight: 900; color: rgba(0,0,0,0.05); 
+            z-index: 1; pointer-events: none;
         }
 
-        /* 真正的水豚君（CSS 繪製） */
-        .capy-character {
-            position: absolute; bottom: -10px; left: 20px; width: 120px; height: 90px;
-            background: var(--capy-brown); border-radius: 60px 60px 20px 20px;
-            z-index: 5; transform: rotate(-5deg); box-shadow: inset -5px -5px 0 rgba(0,0,0,0.1);
-        }
-        .capy-character::before { /* 鼻子與嘴巴 */
-            content: ""; position: absolute; left: -5px; top: 35px; width: 45px; height: 40px;
-            background: #D7B98E; border-radius: 50%; border-right: 2px solid #9E7B5C;
-        }
-        .capy-character::after { /* 眼睛 */
-            content: "●"; font-size: 10px; color: #333; position: absolute; left: 25px; top: 30px;
-        }
-        .capy-ear {
-            position: absolute; top: 10px; right: 30px; width: 20px; height: 15px;
-            background: var(--capy-dark); border-radius: 50%;
+        /* 實體水豚貼圖 */
+        .capy-sticker {
+            position: absolute; bottom: 10px; right: 20px;
+            width: 140px; z-index: 5; pointer-events: none;
         }
 
         canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
 
-        .controls { margin-top: 20px; display: flex; gap: 15px; z-index: 20; }
+        /* 控制區 */
+        .controls { margin-top: 20px; display: flex; gap: 15px; }
         
         button, select {
-            padding: 12px 25px; border-radius: 30px; border: none; font-size: 18px;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 4px 0 #795548; background: #8D6E63; color: white;
+            padding: 12px 25px; border-radius: 30px; border: none;
+            font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 5px 0 #795548; background: #8D6E63; color: white;
         }
-        button:hover { transform: translateY(-3px); box-shadow: 0 7px 0 #795548; }
-        button:active { transform: translateY(2px); box-shadow: 0 0px 0 #795548; }
-        .btn-clear { background: #B0BEC5; box-shadow: 0 4px 0 #78909C; }
+        button:active { transform: translateY(3px); box-shadow: 0 2px 0 #795548; }
+        .btn-score { background: #FF7043; box-shadow: 0 5px 0 #E64A19; }
 
-        /* 評分彈窗 */
-        #score-panel {
+        /* 慶祝畫面 */
+        #celebration {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.9); z-index: 100;
+            background: rgba(255, 255, 255, 0.95); z-index: 100;
             display: none; flex-direction: column; justify-content: center; align-items: center;
         }
-        .grade-text { font-size: 120px; color: #FF7043; margin: 0; }
+        .grade-star { font-size: 120px; color: #FFD54F; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <div class="title">🐾 水豚森林練習本 🐾</div>
+    <div class="title-container">
+        <h1 class="title">🐾 水豚君與小朋友的練習時間 🐾</h1>
+    </div>
 
-    <div id="container">
+    <div id="notebook">
+        <div class="decoration-bg"></div>
         <div id="guide" class="letter-guide">Aa</div>
-        <div class="decoration"></div>
         
-        <div class="capy-character">
-            <div class="capy-ear"></div>
-            <div style="position:absolute; left: 10px; top: 45px; width: 6px; height: 6px; background:#333; border-radius:50%;"></div> </div>
+        <img class="capy-sticker" src="https://img.icons8.com/bubbles/200/capybara.png" alt="capy">
 
-        <canvas id="canvas" width="600" height="450"></canvas>
+        <canvas id="canvas" width="550" height="420"></canvas>
 
-        <div id="score-panel">
-            <p style="font-size: 24px; color: #5D4037;">水豚君說你寫得...</p>
-            <h1 class="grade-text" id="grade">A+</h1>
-            <p id="feedback" style="font-size: 20px; font-weight: bold; color: #8D6E63;">太棒了！🍊</p>
-            <button onclick="reset()">再練習一個</button>
+        <div id="celebration">
+            <div class="grade-star" id="gradeIcon">A+</div>
+            <h2 style="color: #5D4037;">寫得太棒了！</h2>
+            <p style="font-size: 20px;">水豚君給你一顆橘子 🍊</p>
+            <button onclick="resetBoard()">繼續挑戰下一個</button>
         </div>
     </div>
 
     <div class="controls">
-        <select id="letterSelect" onchange="changeLetter()"></select>
-        <button class="btn-clear" onclick="reset()">擦掉重寫</button>
-        <button onclick="showScore()" style="background: #FFA726; box-shadow: 0 4px 0 #EF6C00;">給水豚君檢查</button>
+        <select id="letterSelect" onchange="updateLetter()"></select>
+        <button onclick="resetBoard()" style="background: #A1887F;">重寫</button>
+        <button class="btn-score" onclick="getScore()">交卷評分</button>
     </div>
 
     <script>
@@ -118,80 +104,70 @@
         const ctx = canvas.getContext('2d');
         const select = document.getElementById('letterSelect');
         const guide = document.getElementById('guide');
-        const scorePanel = document.getElementById('score-panel');
-        let isDrawing = false;
+        const overlay = document.getElementById('celebration');
+        let drawing = false;
 
-        // 初始化字母選單
-        for(let i=65; i<=90; i++) {
-            let L = String.fromCharCode(i);
+        // 初始化選單
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        letters.forEach(l => {
             let opt = document.createElement('option');
-            opt.value = L;
-            opt.textContent = `字母 ${L}${L.toLowerCase()}`;
+            opt.value = l; opt.textContent = `練習 ${l}${l.toLowerCase()}`;
             select.appendChild(opt);
-        }
+        });
 
-        function changeLetter() {
+        function updateLetter() {
             guide.textContent = select.value + select.value.toLowerCase();
-            reset();
+            resetBoard();
         }
 
-        function reset() {
+        function resetBoard() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            scorePanel.style.display = 'none';
+            overlay.style.display = 'none';
         }
 
-        function showScore() {
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-            let pixels = 0;
-            for (let i = 3; i < imgData.length; i += 4) if (imgData[i] > 0) pixels++;
+        function getScore() {
+            const data = ctx.getImageData(0,0,550,420).data;
+            let drawCount = 0;
+            for(let i=3; i<data.length; i+=4) if(data[i]>0) drawCount++;
             
-            const grade = document.getElementById('grade');
-            const feedback = document.getElementById('feedback');
-            
-            if(pixels > 1000) {
-                grade.textContent = "A+";
-                feedback.textContent = "寫得太漂亮了！送你一顆橘子 🍊";
-            } else {
-                grade.textContent = "加油";
-                feedback.textContent = "再多練習幾次，水豚君陪你！🐾";
-            }
-            scorePanel.style.display = 'flex';
+            document.getElementById('gradeIcon').textContent = drawCount > 800 ? "A+" : "加油";
+            overlay.style.display = 'flex';
         }
 
-        // 繪圖邏輯
+        // 觸控與滑鼠事件
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
-            return {
-                x: (e.clientX || e.touches[0].clientX) - rect.left,
-                y: (e.clientY || e.touches[0].clientY) - rect.top
-            };
+            const cx = e.clientX || (e.touches && e.touches[0].clientX);
+            const cy = e.clientY || (e.touches && e.touches[0].clientY);
+            return { x: cx - rect.left, y: cy - rect.top };
         }
 
         function start(e) {
-            isDrawing = true;
-            const pos = getPos(e);
+            drawing = true;
             ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
+            const p = getPos(e);
+            ctx.moveTo(p.x, p.y);
         }
 
-        function draw(e) {
-            if (!isDrawing) return;
-            const pos = getPos(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.lineWidth = 15;
+        function move(e) {
+            if(!drawing) return;
+            if(e.touches) e.preventDefault();
+            const p = getPos(e);
+            ctx.lineTo(p.x, p.y);
+            ctx.lineWidth = 14;
             ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#5D4037'; // 咖啡色筆觸
+            ctx.strokeStyle = '#42A5F5'; // 亮藍色
             ctx.stroke();
         }
 
         canvas.addEventListener('mousedown', start);
-        canvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', () => isDrawing = false);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
-        canvas.addEventListener('touchend', () => isDrawing = false);
+        canvas.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('touchstart', start, {passive: false});
+        canvas.addEventListener('touchmove', move, {passive: false});
+        canvas.addEventListener('touchend', () => drawing = false);
 
+        updateLetter();
     </script>
 </body>
 </html>
