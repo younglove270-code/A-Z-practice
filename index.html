@@ -10,7 +10,6 @@
         * { box-sizing: border-box; font-family: 'Nunito', 'Microsoft JhengHei', sans-serif; }
         body { background: var(--bg-forest); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* 進度條 */
         .progress-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 480px; margin-bottom: 10px; }
         .dot { width: 24px; height: 24px; border-radius: 50%; background: #ddd; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #777; transition: 0.3s; }
         .dot.active { background: var(--primary); color: white; transform: scale(1.2); }
@@ -24,8 +23,10 @@
         canvas { position: absolute; top: 0; left: 0; z-index: 10; width: 100%; height: 100%; }
         .capy-img { position: absolute; bottom: 10px; right: 15px; width: 80px; z-index: 5; pointer-events: none; }
 
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.97); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        #grade-text { font-size: 90px; font-weight: 900; margin: 0; color: var(--accent); }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #grade-text { font-size: 100px; font-weight: 900; margin: 0; color: var(--accent); line-height: 1; }
+        #result-word { font-size: 32px; font-weight: 700; color: var(--primary); margin: 10px 0; }
+        .icon-large { font-size: 60px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -44,26 +45,27 @@
         <canvas id="paintCanvas" width="500" height="380"></canvas>
         <div id="overlay">
             <h1 id="grade-text">A+</h1>
-            <p id="feedback-text" style="font-weight:bold; font-size: 20px; color: #555;"></p>
-            <p style="font-size: 14px; color: #999; margin-top: 15px;">(點擊畫面繼續)</p>
+            <div id="result-word">E (Egg)</div>
+            <div id="result-icon" class="icon-large">🍎</div>
+            <p style="font-size: 14px; color: #bbb; margin-top: 20px;">(點擊畫面繼續)</p>
         </div>
     </div>
 
     <script>
         const PHONICS = {
-            A: { p: "A says ah as in Apple!", s: "ah" }, B: { p: "B says buh as in Ball!", s: "buh" },
-            C: { p: "C says kuh as in Cat!", s: "kuh" }, D: { p: "D says duh as in Dog!", s: "duh" },
-            E: { p: "E says eh as in Egg!", s: "eh" }, F: { p: "F says fuh as in Fish!", s: "fuh" },
-            G: { p: "G says guh as in Goat!", s: "guh" }, H: { p: "H says huh as in Hat!", s: "huh" },
-            I: { p: "I says ih as in Igloo!", s: "ih" }, J: { p: "J says juh as in Jump!", s: "juh" },
-            K: { p: "K says kuh as in Kite!", s: "kuh" }, L: { p: "L says luh as in Lion!", s: "luh" },
-            M: { p: "M says muh as in Moon!", s: "muh" }, N: { p: "N says nuh as in Nose!", s: "nuh" },
-            O: { p: "O says aw as in Octopus!", s: "aw" }, P: { p: "P says puh as in Pen!", s: "puh" },
-            Q: { p: "Q says kwuh as in Queen!", s: "kwuh" }, R: { p: "R says ruh as in Rainbow!", s: "ruh" },
-            S: { p: "S says sss as in Sun!", s: "sss" }, T: { p: "T says tuh as in Tree!", s: "tuh" },
-            U: { p: "U says uh as in Umbrella!", s: "uh" }, V: { p: "V says vuh as in Van!", s: "vuh" },
-            W: { p: "W says wuh as in Water!", s: "wuh" }, X: { p: "X says ksss as in Fox!", s: "ksss" },
-            Y: { p: "Y says yuh as in Yellow!", s: "yuh" }, Z: { p: "Z says zzz as in Zebra!", s: "zzz" }
+            A: { word: "Apple", icon: "🍎", s: "ah" }, B: { word: "Ball", icon: "⚽", s: "buh" },
+            C: { word: "Cat", icon: "🐱", s: "kuh" }, D: { word: "Dog", icon: "🐶", s: "duh" },
+            E: { word: "Egg", icon: "🥚", s: "eh" }, F: { word: "Fish", icon: "🐟", s: "fuh" },
+            G: { word: "Goat", icon: "🐐", s: "guh" }, H: { word: "Hat", icon: "👒", s: "huh" },
+            I: { word: "Igloo", icon: "⛺", s: "ih" }, J: { word: "Jump", icon: "👟", s: "juh" },
+            K: { word: "Kite", icon: "🪁", s: "kuh" }, L: { word: "Lion", icon: "🦁", s: "luh" },
+            M: { word: "Moon", icon: "🌙", s: "muh" }, N: { word: "Nose", icon: "👃", s: "nuh" },
+            O: { word: "Octopus", icon: "🐙", s: "aw" }, P: { word: "Pen", icon: "🖊️", s: "puh" },
+            Q: { word: "Queen", icon: "👸", s: "kwuh" }, R: { word: "Rainbow", icon: "🌈", s: "ruh" },
+            S: { word: "Sun", icon: "☀️", s: "sss" }, T: { word: "Tree", icon: "🌳", s: "tuh" },
+            U: { word: "Umbrella", icon: "☂️", s: "uh" }, V: { word: "Van", icon: "🚐", s: "vuh" },
+            W: { word: "Water", icon: "💧", s: "wuh" }, X: { word: "Fox", icon: "🦊", s: "ksss" },
+            Y: { word: "Yellow", icon: "💛", s: "yuh" }, Z: { word: "Zebra", icon: "🦓", s: "zzz" }
         };
 
         const App = {
@@ -85,22 +87,14 @@
 
                 document.getElementById('btnSpeak').onclick = () => this.speak(PHONICS[this.currentLetter].s);
                 document.getElementById('btnReset').onclick = () => this.reset();
-                document.getElementById('btnScore').onclick = () => this.gradeCheck();
+                document.getElementById('btnScore').onclick = () => this.gradeEngine();
                 this.overlay.onclick = () => this.overlay.style.display = 'none';
                 this.sel.onchange = (e) => { this.currentLetter = e.target.value; this.reset(); };
 
-                const getXY = (e) => {
-                    const r = this.canvas.getBoundingClientRect();
-                    const cx = e.clientX || (e.touches && e.touches[0].clientX);
-                    const cy = e.clientY || (e.touches && e.touches[0].clientY);
-                    return { x: (cx - r.left) * (500/r.width), y: (cy - r.top) * (380/r.height) };
-                };
-
-                const start = (e) => { e.preventDefault(); this.isDrawing = true; const p = getXY(e); this.ctx.beginPath(); this.ctx.moveTo(p.x, p.y); };
-                const move = (e) => { if(!this.isDrawing) return; e.preventDefault(); const p = getXY(e); this.ctx.lineWidth = 15; this.ctx.lineCap = 'round'; this.ctx.strokeStyle = '#5D4037'; this.ctx.lineTo(p.x, p.y); this.ctx.stroke(); };
-                
+                const start = (e) => { e.preventDefault(); this.isDrawing = true; this.draw(e, true); };
+                const move = (e) => { if(this.isDrawing) { e.preventDefault(); this.draw(e); } };
                 this.canvas.onmousedown = start; this.canvas.onmousemove = move; window.onmouseup = () => this.isDrawing = false;
-                this.canvas.ontouchstart = start; this.canvas.ontouchmove = move; this.canvas.ontouchend = () => this.isDrawing = false;
+                this.canvas.ontouchstart = start; this.canvas.ontouchmove = move; window.ontouchend = () => this.isDrawing = false;
 
                 this.reset();
             },
@@ -116,6 +110,17 @@
                 this.updateProgress();
             },
 
+            draw(e, isStart = false) {
+                const r = this.canvas.getBoundingClientRect();
+                const cx = e.clientX || (e.touches && e.touches[0].clientX);
+                const cy = e.clientY || (e.touches && e.touches[0].clientY);
+                const x = (cx - r.left) * (500/r.width);
+                const y = (cy - r.top) * (380/r.height);
+                if(isStart) this.ctx.beginPath();
+                this.ctx.lineWidth = 15; this.ctx.lineCap = 'round'; this.ctx.strokeStyle = '#5D4037';
+                this.ctx.lineTo(x, y); this.ctx.stroke();
+            },
+
             speak(text) {
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(text);
@@ -123,28 +128,53 @@
                 window.speechSynthesis.speak(u);
             },
 
-            // 找回來的糾錯評分演算法
-            gradeCheck() {
-                const studentData = this.ctx.getImageData(0, 0, 500, 380).data;
-                let drawCount = 0;
-                for(let i=3; i<studentData.length; i+=4) if(studentData[i] > 100) drawCount++;
+            // --- 進階糾錯引擎 ---
+            gradeEngine() {
+                const CANVAS_W = 500, CANVAS_H = 380;
+                
+                // 1. 生成隱藏範本 (Template)
+                const offCanvas = document.createElement('canvas');
+                offCanvas.width = CANVAS_W; offCanvas.height = CANVAS_H;
+                const octx = offCanvas.getContext('2d');
+                octx.font = "bold 230px Arial"; octx.textAlign = "center"; octx.textBaseline = "middle";
+                octx.fillText(this.currentLetter + this.currentLetter.toLowerCase(), 250, 190);
+                
+                const templateData = octx.getImageData(0,0,CANVAS_W,CANVAS_H).data;
+                const studentData = this.ctx.getImageData(0,0,CANVAS_W,CANVAS_H).data;
 
-                if(drawCount < 500) {
-                    alert("還沒動筆寫字喔！");
-                    return;
+                let hit = 0, totalTemplate = 0, stray = 0, studentPixels = 0;
+
+                for(let i=3; i<templateData.length; i+=4) {
+                    const isT = templateData[i] > 50;
+                    const isS = studentData[i] > 150; // 只偵測深色筆跡，不偵測淺色底字
+                    
+                    if(isT) totalTemplate++;
+                    if(isS) studentPixels++;
+                    if(isT && isS) hit++;
+                    if(!isT && isS) stray++; // 寫在範本外
                 }
 
-                // 模擬評分邏輯 (根據筆畫數量初步判斷)
-                let grade = "A+";
-                let feedback = PHONICS[this.currentLetter].p;
-                
-                if(drawCount < 2000) { grade = "C"; feedback = "再多練習一下，把字母寫得更清楚吧！"; }
-                else if(drawCount < 4000) { grade = "B"; feedback = "寫得不錯！繼續加油！"; }
+                if(studentPixels < 500) { alert("你還沒開始寫喔！"); return; }
 
+                // 計算覆蓋率與精準度
+                const coverage = hit / totalTemplate;
+                const accuracy = hit / studentPixels;
+                const score = (coverage * 0.6 + accuracy * 0.4) * 100;
+
+                let grade = "C";
+                if(score > 55) grade = "A+";
+                else if(score > 30) grade = "B";
+
+                this.showOverlay(grade);
+            },
+
+            showOverlay(grade) {
+                const info = PHONICS[this.currentLetter];
                 document.getElementById('grade-text').innerText = grade;
-                document.getElementById('feedback-text').innerText = feedback;
+                document.getElementById('result-word').innerText = `${this.currentLetter} (${info.word})`;
+                document.getElementById('result-icon').innerText = info.icon;
                 this.overlay.style.display = 'flex';
-                this.speak(feedback);
+                this.speak(info.word);
             },
 
             updateProgress() {
@@ -154,8 +184,7 @@
                 this.abc.forEach((l, i) => {
                     const d = document.createElement('div');
                     d.className = `dot ${i === currIdx ? 'active' : (i < currIdx ? 'done' : '')}`;
-                    d.innerText = l;
-                    box.appendChild(d);
+                    d.innerText = l; box.appendChild(d);
                 });
             }
         };
