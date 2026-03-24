@@ -3,111 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>水豚君發音練習帖</title>
+    <title>水豚君森林教室 Aa-Zz</title>
     <style>
-        body { background-color: #f0f7ef; margin: 0; padding: 20px; font-family: sans-serif; text-align: center; }
-        .container {
-            width: 500px; height: 380px; background: white; 
-            border: 12px solid #8d6e63; border-radius: 45px;
-            margin: 15px auto; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        :root {
+            --soft-bg: #F1F8E9; /* 柔和草綠色背景 */
+            --notebook-edge: #A1887F; /* 實體書棕色邊框 */
+            --capy-line: #5D4037; /* 棕色字體 */
+            --ink-blue: #4FC3F7; /* 鉛筆藍色 */
+        }
+
+        /* 🌍 全局森林系背景：淡雅柔和草綠色與小草底紋 */
+        body { 
+            background: 
+                /* 森林小草紋理浮水印 */
+                linear-gradient(to top, #A5D6A7 5%, transparent 20%),
+                var(--soft-bg);
+            text-align: center; 
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; 
+            margin: 0; padding: 20px; 
+            color: var(--capy-line);
+            overflow: hidden; 
+            height: 100vh;
+        }
+
+        .icons { font-size: 45px; margin-bottom: 5px; filter: drop-shadow(2px 2px 0px white); }
+        h2 { color: var(--capy-line); margin: 10px 0; font-size: 26px; }
+
+        /* 介面按鈕區 */
+        .ui { margin-bottom: 20px; display: flex; justify-content: center; gap: 12px; align-items: center; }
+        select, button { 
+            padding: 10px 20px; font-size: 16px; 
+            border-radius: 25px; border: 2px solid #E0E0E0; 
+            cursor: pointer; font-family: inherit; font-weight: bold;
+        }
+        select { background-color: #fff; color: #5D4037; }
+        .score-btn { background: #FF8A65; color: white; border: none; box-shadow: 0 4px #D84315; }
+        .score-btn:active { transform: translateY(2px); box-shadow: 0 2px #D84315; }
+        .reset-btn { background: #E6D5C3; color: #5D4037; border: none; }
+
+        /* 練習本容器：富有質感的圓角與棕色邊框 */
+        #box { 
+            position: relative; width: 500px; height: 380px; 
+            background: white; border: 12px solid var(--notebook-edge); 
+            border-radius: 40px; margin: 10px auto; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
             touch-action: none; overflow: hidden;
         }
-        canvas { display: block; position: relative; z-index: 10; }
-        .capy-buddy { position: absolute; bottom: 10px; right: 15px; font-size: 100px; z-index: 5; }
-        .ui-box { margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; }
-        button { padding: 12px 22px; border-radius: 25px; border: 3px solid #8d6e63; font-weight: bold; cursor: pointer; }
-        .btn-score { background: #ff8a65; color: white; border: none; }
-        #win {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95); z-index: 100;
-            display: none; flex-direction: column; justify-content: center; align-items: center;
+
+        canvas { 
+            display: block; border-radius: 32px; 
+            background: transparent; 
+            position: relative; z-index: 5;
         }
-        .win-capy { font-size: 80px; animation: bounce 0.4s infinite alternate; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+
+        /* 🌟 核心：可愛的頭頂橘子水豚君 (由圖片內嵌驅動，穩定顯示) */
+        .capy-corner {
+            position: absolute; bottom: 10px; right: 15px;
+            width: 130px; height: 100px;
+            opacity: 0.9; z-index: 10;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZWxsaXBzZSBjeD0iNTAiIGN5PSI1NSIgcng9IjQ1IiByeT0iMzUiIGZpbGw9IiNEO0E5OEMiIHN0cm9rZT0iIzVENDAzNyIgc3Ryb2tlLXdpZHRoPSIyIi8+PGVsbGlwc2UgY3g9IjgwIiBjeT0iNjUiIHJ4PSIyMCIgcnk9IjI1IiBmaWxsPSIjQTY3QzVGIiBzdHJva2U9IiM1RDQwMzciIHN0cm9rZS13aWR0aPSIyIi8+PHJlY3QgeD0iNDAiIHk9IjMwIiB3aWR0aD0iMTUiIGhlaWdodD0iMyIgcng9IjEuNSIgZmlsbD0iIzVENDAzNyIgdHJhbnNmb3JtPSJyb3RhdGUoLTEwIDQ3LjUgMzEuNSkiLz48dGV4dCBxPSI3NSIgeT0iMzAiIGZvbnQtc2l6ZT0iMjAiPuS7qTwvdGV4dD48L3N2Zz4=');
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none; /* 不會擋到畫筆 */
+        }
+
+        /* 評分與慶祝視窗 (交卷評分時顯示) */
+        #celebration-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; background: rgba(255, 255, 255, 0.96); 
+            border-radius: 32px; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 100; 
+            animation: fadeIn 0.3s;
+        }
+        #grade { font-size: 110px; color: #FF7043; font-weight: 900; margin: 0; text-shadow: 3px 3px 0px #FFE0B2; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <h2 style="color: #5d4037;">🔊 水豚君發音練習教室</h2>
+    <div class="icons">🎒 🍎 🌿 🌲</div>
+    <h2>水豚君森林教室 Aa-Zz</h2>
 
-    <div class="ui-box">
-        <select id="sel" style="padding:10px; border-radius:20px;"></select>
-        <button onclick="init()">重寫</button>
-        <button class="btn-score" onclick="goNext()">寫好了！</button>
+    <div class="ui">
+        <select id="letterSelect"></select>
+        <button class="reset-btn" id="resetBtn">擦乾淨</button>
+        <button class="score-btn" id="scoreBtn">寫好了交卷</button>
     </div>
 
-    <div class="container">
-        <div class="capy-buddy">🦫<span style="position:absolute; top:-15px; left:35px; font-size:30px;">🍊</span></div>
+    <div id="box">
+        <div class="capy-corner"></div>
+
         <canvas id="c" width="500" height="380"></canvas>
-        <div id="win">
-            <div class="win-capy">🦫🎉</div>
-            <h1 style="font-size: 80px; color: #ff5722; margin: 0;">A+</h1>
-            <p>好棒！正在前往下一個字母...</p>
+        
+        <div id="celebration-overlay">
+            <h1 id="grade">A+</h1>
+            <p style="font-size: 20px; font-weight: bold; color: #5D4037;">寫得太漂亮了！送你一顆橘子🍊</p>
         </div>
     </div>
 
     <script>
-        const cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
-        const sel = document.getElementById('sel'), win = document.getElementById('win');
-        let drawing = false;
+        (function() {
+            // 放到 window.onload，確保 canvas 已經長出來，徹底解決報錯問題
+            window.onload = function() {
+                const cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
+                const sel = document.getElementById('letterSelect'), overlay = document.getElementById('celebration-overlay');
+                let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), drawing = false;
 
-        for(let i=65; i<=90; i++) {
-            let char = String.fromCharCode(i);
-            let opt = document.createElement('option');
-            opt.value = char; opt.innerHTML = `字母 ${char}${char.toLowerCase()}`;
-            sel.appendChild(opt);
-        }
+                // 初始化字母選單
+                alphabet.forEach(function(l) {
+                    var opt = document.createElement('option'); opt.value = l; opt.innerHTML = "練習字母 " + l + l.toLowerCase(); sel.appendChild(opt);
+                });
 
-        // --- 語音功能函數 ---
-        function say(text) {
-            const synth = window.speechSynthesis;
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'en-US';
-            utter.rate = 0.7;
-            synth.speak(utter);
-        }
-
-        function init() {
-            win.style.display = 'none';
-            ctx.clearRect(0, 0, 500, 380);
-            ctx.font = 'bold 260px Arial'; ctx.fillStyle = '#f9f9f9';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(sel.value, 250, 190);
-            // 當切換或重寫時，讀出該字母
-            say(sel.value);
-        }
-
-        function goNext() {
-            win.style.display = 'flex';
-            say("Excellent!"); // 交卷時給予讚美語音
-            setTimeout(() => {
-                if (sel.selectedIndex < 25) {
-                    sel.selectedIndex++;
-                    init();
+                function initBoard() {
+                    overlay.style.display = 'none';
+                    ctx.clearRect(0, 0, 500, 380);
+                    
+                    // 畫範本底字 (淡淡的灰色，方便描寫)
+                    ctx.font = 'bold 240px Arial'; ctx.fillStyle = '#F5F5F5'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(sel.value + sel.value.toLowerCase(), 250, 190);
+                    
+                    // 畫練習輔助格線
+                    ctx.setLineDash([8, 8]); ctx.lineWidth = 1.5; ctx.strokeStyle = "#E6D5C3";
+                    [90, 144, 198, 252].forEach(function(y) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(500, y); ctx.stroke(); });
+                    ctx.setLineDash([]);
                 }
-            }, 1200); 
-        }
 
-        // 繪圖邏輯
-        function getPos(e) {
-            const r = cvs.getBoundingClientRect();
-            const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-            return {x, y};
-        }
-        function start(e) { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
-        function move(e) {
-            if(!drawing) return; e.preventDefault();
-            const p = getPos(e); ctx.lineTo(p.x, p.y);
-            ctx.lineWidth = 15; ctx.lineCap = 'round'; ctx.strokeStyle = '#5d4037'; ctx.stroke();
-        }
-        
-        cvs.addEventListener('mousedown', start); cvs.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => drawing = false);
-        cvs.addEventListener('touchstart', start); cvs.addEventListener('touchmove', move);
-        cvs.addEventListener('touchend', () => drawing = false);
-        sel.onchange = init;
-        window.onload = init;
+                // --- 寫字功能 ---
+                function getPos(e) {
+                    var r = cvs.getBoundingClientRect();
+                    var cx = e.clientX || (e.touches && e.touches[0].clientX);
+                    var cy = e.clientY || (e.touches && e.touches[0].clientY);
+                    return { x: cx - r.left, y: cy - r.top };
+                }
+
+                function start(e) { drawing = true; ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y); }
+                function move(e) {
+                    if (!drawing) return; e.preventDefault();
+                    var p = getPos(e);
+                    ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#4FC3F7';
+                    ctx.lineTo(p.x, p.y); ctx.stroke();
+                }
+                function stop() { drawing = false; }
+
+                // 事件監聽與評分功能
+                document.getElementById('scoreBtn').onclick = () => { overlay.style.display = 'flex'; setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; initBoard(); } }, 2000); };
+                document.getElementById('resetBtn').onclick = initBoard;
+                sel.onchange = initBoard;
+                
+                canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
+                canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', stop);
+
+                initBoard(); // 啟動
+            };
+        })();
     </script>
 </body>
 </html>
