@@ -6,10 +6,10 @@
     <title>懶懶水豚君英文練習</title>
     <style>
         :root {
-            --capy-body: #D7A98C;
-            --capy-nose: #A67C5F;
-            --capy-line: #5D4037;
-            --bg-color: #FEF8F0;
+            --capy-body: #D7A98C; /* 身體 */
+            --capy-nose: #A67C5F; /* 鼻子 */
+            --capy-line: #5D4037; /* 線條 */
+            --bg-color: #FEF8F0; /* 極淡米色 */
         }
 
         body { 
@@ -21,6 +21,13 @@
             overflow: hidden; 
         }
 
+        h2 { 
+            color: var(--capy-line); 
+            margin: 10px 0; 
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+
         #box { 
             width: 480px; height: 360px; 
             background: white; 
@@ -30,24 +37,23 @@
             position: relative; 
             box-shadow: 0 8px 25px rgba(166, 124, 95, 0.2); 
             touch-action: none; 
+            overflow: hidden;
         }
 
-        /* 調整畫布層級，確保它在最前面 */
         canvas { 
             display: block; 
             border-radius: 27px; 
             background: transparent; 
-            position: absolute; top: 0; left: 0;
-            z-index: 10; 
+            position: relative; z-index: 10; /* 畫布在最上層 */
         }
 
-        /* 底圖浮水印：移到 z-index 1 */
+        /* 🌟 畫布底圖浮水印：移到 z-index 1 */
         #capy-watermark {
             position: absolute;
             top: 55%; left: 50%;
             transform: translate(-50%, -50%);
             width: 250px;
-            opacity: 0.1; /* 稍微調淡，不干擾寫字 */
+            opacity: 0.1; /* 貼圖浮水印 */
             z-index: 1;
             pointer-events: none;
         }
@@ -63,4 +69,108 @@
             border-radius: 27px; flex-direction: column; justify-content: center; align-items: center; z-index: 100; 
         }
         .capy-jump { width: 160px; height: 160px; animation: capyHappy 0.6s infinite alternate cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #grade { font-size: 100px; font-weight
+        #grade { font-size: 100px; font-weight: 900; color: #FF7043; margin: -10px 0; }
+        @keyframes capyHappy { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+
+    <h2>🐾 水豚君陪你寫英文 🐾</h2>
+    
+    <div class="ui">
+        <select id="sel"></select>
+        <button class="reset-btn" id="resetBtn">重寫</button>
+        <button class="score-btn" id="scoreBtn">看分數</button>
+    </div>
+
+    <div id="box">
+        <svg id="capy-watermark" viewBox="0 0 200 120">
+            <ellipse cx="100" cy="65" rx="80" ry="50" fill="#D7A98C" stroke="#5D4037" stroke-width="1.5"/>
+            <ellipse cx="40" cy="70" rx="25" ry="30" fill="#A67C5F" stroke="#5D4037" stroke-width="1.5"/>
+            <rect x="70" y="45" width="15" height="3" rx="1.5" fill="#5D4037" />
+        </svg>
+
+        <canvas id="c" width="480" height="360"></canvas>
+        
+        <div id="celebration-overlay">
+            <svg class="capy-jump" viewBox="0 0 100 100">
+                <ellipse cx="50" cy="60" rx="40" ry="30" fill="#D7A98C" stroke="#5D4037" stroke-width="2"/>
+                <ellipse cx="80" cy="70" rx="15" ry="20" fill="#A67C5F" stroke="#5D4037" stroke-width="2"/>
+                <text x="10" y="30" font-size="20">✨</text>
+            </svg>
+            <div id="grade">A+</div>
+            <p>寫得太棒了！貼圖貼圖！</p>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            var cvs = document.getElementById('c');
+            var ctx = cvs.getContext('2d');
+            var sel = document.getElementById('sel');
+            var overlay = document.getElementById('celebration-overlay');
+            var drawing = false;
+            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+            alphabet.forEach(function(l) {
+                var opt = document.createElement('option');
+                opt.value = l; opt.innerText = `練習 ${l}${l.toLowerCase()}`;
+                sel.appendChild(opt);
+            });
+
+            // 🌟 核心：確保繪製順序 (格子 -> 底字 -> 墨水)
+            function reset() {
+                overlay.style.display = 'none';
+                ctx.clearRect(0, 0, 480, 360);
+                
+                // 1. 先畫格線
+                ctx.setLineDash([5, 5]); ctx.lineWidth = 1; ctx.strokeStyle = "#DDD";
+                [90, 144, 198, 252].forEach(y => { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(480,y); ctx.stroke(); });
+                
+                // 2. 畫字母底字
+                ctx.setLineDash([]); ctx.font = 'bold 230px Arial'; 
+                // 字母底色改深一點(#E8E8E8 -> #E0E0E0)，確保絕對現身！
+                ctx.fillStyle = '#E0E0E0'; 
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(sel.value + sel.value.toLowerCase(), 240, 180);
+            }
+
+            // --- 繪圖邏輯 ---
+            function getPos(e) {
+                const r = cvs.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - r.left, y: clientY - r.top };
+            }
+
+            function start(e) { drawing = true; ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y); }
+            function move(e) {
+                if(!drawing) return;
+                var p = getPos(e);
+                ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.strokeStyle = '#4FC3F7';
+                ctx.lineTo(p.x, p.y); ctx.stroke();
+                // 防止墨水產生毛邊，每畫完一小段就重新開啟路徑
+                ctx.beginPath(); ctx.moveTo(p.x, p.y); 
+            }
+            function stop() { drawing = false; }
+
+            // 自動跳轉
+            document.getElementById('scoreBtn').onclick = () => { overlay.style.display = 'flex'; setTimeout(() => { if(sel.selectedIndex < 25) { sel.selectedIndex++; reset(); } }, 2000); };
+            document.getElementById('resetBtn').onclick = reset;
+            sel.onchange = reset;
+
+            // --- 事件綁定與初始化 ---
+            cvs.addEventListener('mousedown', start);
+            cvs.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', stop);
+            cvs.addEventListener('touchstart', e => { e.preventDefault(); start(e); });
+            cvs.addEventListener('touchmove', e => { e.preventDefault(); move(e); });
+            cvs.addEventListener('touchend', stop);
+
+            // 🌟 核心：確保瀏覽器準備好再進行首次繪製
+            requestAnimationFrame(reset);
+
+        })();
+    </script>
+</body>
+</html>
